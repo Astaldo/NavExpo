@@ -1,7 +1,8 @@
 import SwiftUI
 import NavigationKit
 
-public enum ListRoute: Hashable {
+@CasePathable
+public enum ListRoute: String, Hashable, CaseIterable {
     case detail1
     case detail2
 }
@@ -20,38 +21,48 @@ public struct ListEntryView: View {
             ListRootScreen(navigator: navigator)
                 .navigationTitle("List")
                 .navigationDestination(for: ListRoute.self) { route in
-                    switch route {
-                    case .detail1:
-                        ListDetail1Screen(navigator: navigator)
-                    case .detail2:
-                        ListDetail2Screen(navigator: navigator)
-                    }
+                    destinationView(for: route)
                 }
+        }
+    }
+
+    @ViewBuilder
+    private func destinationView(for route: ListRoute) -> some View {
+        switch route {
+        case .detail1:
+            ListDetail1Screen(navigator: navigator)
+        case .detail2:
+            ListDetail2Screen(navigator: navigator)
         }
     }
 }
 
 struct ListRootScreen: View {
     let navigator: ListNavigator
-    @State private var showAlert: Bool = false
+    @State private var destination: ListDestination?
 
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             Spacer()
 
-            Button("Go to List Detail 1") {
-                navigator.push(.detail1)
-            }
-            .buttonStyle(.borderedProminent)
+            VStack(spacing: 16) {
+                Button("Go to List Detail 1") {
+                    navigator.push(.detail1)
+                }
+                .buttonStyle(.borderedProminent)
 
-            Button("Show Alert") {
-                showAlert = true
+                Button("Show Alert") {
+                    destination = .alert
+                }
+                .buttonStyle(.bordered)
             }
-            .padding(.top, 12)
 
             Spacer()
         }
-        .alert("List Alert", isPresented: $showAlert) {
+        .alert("List Alert", isPresented: .init(
+            get: { destination == .alert },
+            set: { _ in destination = nil }
+        )) {
             Button("OK", role: .cancel) { }
         } message: {
             Text("This is an alert on the List root screen.")
@@ -59,40 +70,70 @@ struct ListRootScreen: View {
     }
 }
 
+// MARK: - List Destinations
+
+@CasePathable
+enum ListDestination {
+    case alert
+}
+
 struct ListDetail1Screen: View {
     let navigator: ListNavigator
-    @State private var showSheet: Bool = false
+    @State private var destination: ListDetail1Destination?
 
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             Spacer()
-            Button("Go to List Detail 2") {
-                navigator.push(.detail2)
-            }
-            .buttonStyle(.borderedProminent)
-            Button("Show Bottom Sheet") {
-                showSheet = true
-            }
-            .padding(.top, 12)
-            Spacer()
-        }
-        .navigationTitle("List Detail 1")
-        .sheet(isPresented: $showSheet) {
+
             VStack(spacing: 16) {
-                Text("List Bottom Sheet")
-                    .font(.headline)
-                Text("This is a modal sheet presented from List Detail 1.")
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                Button("Dismiss") {
-                    showSheet = false
+                Button("Go to List Detail 2") {
+                    navigator.push(.detail2)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("Show Bottom Sheet") {
+                    destination = .sheet
                 }
                 .buttonStyle(.bordered)
             }
-            .padding()
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
+
+            Spacer()
         }
+        .navigationTitle("List Detail 1")
+        .sheet(isPresented: .init(
+            get: { destination == .sheet },
+            set: { _ in destination = nil }
+        )) {
+            ListBottomSheetView()
+        }
+    }
+}
+
+// MARK: - List Detail 1 Destinations
+
+@CasePathable
+enum ListDetail1Destination {
+    case sheet
+}
+
+struct ListBottomSheetView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("List Bottom Sheet")
+                .font(.headline)
+            Text("This is a modal sheet presented from List Detail 1.")
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            Button("Dismiss") {
+                dismiss()
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
 }
 
@@ -100,7 +141,7 @@ struct ListDetail2Screen: View {
     let navigator: ListNavigator
 
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             Spacer()
 
             Button("Back to List Root") {

@@ -1,25 +1,66 @@
 import SwiftUI
+@_exported import SwiftNavigation
 import FoundationKit
 
-public final class FeatureNavigator<Route: Hashable>: ObservableObject {
-    @Published public var path: NavigationPath
+// MARK: - Feature Navigation
 
-    public init(path: NavigationPath = .init()) {
-        self.path = path
+@MainActor
+public final class FeatureNavigator<Route: Hashable>: ObservableObject {
+    @Published public var path: NavigationPath = NavigationPath()
+
+    // Keep typed path for better state management
+    private var typedPath: [Route] = [] {
+        didSet {
+            path = NavigationPath(typedPath)
+        }
     }
 
+    public init() {}
+
     public func push(_ route: Route) {
-        self.path.append(route)
+        typedPath.append(route)
     }
 
     public func setPath(_ routes: [Route]) {
-        self.path = NavigationPath(routes)
+        typedPath = routes
     }
 
     public func popToRoot() {
-        self.path = NavigationPath()
+        typedPath.removeAll()
+    }
+
+    public func pop() {
+        _ = typedPath.popLast()
+    }
+
+    public func pop(to route: Route) {
+        while let last = typedPath.last, last != route {
+            _ = typedPath.popLast()
+        }
+    }
+
+    // Expose typed routes for enhanced navigation features
+    public var routes: [Route] {
+        return typedPath
     }
 }
+
+// MARK: - Tab Navigation Helper
+
+@MainActor
+public final class TabNavigationState: ObservableObject {
+    @Published public var selectedTab: Int = 0
+
+    public init(selectedTab: Int = 0) {
+        self.selectedTab = selectedTab
+    }
+
+    public func selectTab(_ index: Int) {
+        self.selectedTab = index
+    }
+}
+
+// MARK: - Deep Linking
 
 public enum DeepLink: Equatable {
     case home
@@ -46,5 +87,20 @@ public enum DeepLink: Equatable {
         default:
             return nil
         }
+    }
+}
+
+// MARK: - Deep Link Handler Protocol
+
+@MainActor
+public protocol DeepLinkNavigator {
+    func popToRoot()
+    func setPathForDeepLink(_ components: [String])
+}
+
+extension FeatureNavigator: DeepLinkNavigator where Route: RawRepresentable, Route.RawValue == String {
+    public func setPathForDeepLink(_ components: [String]) {
+        let routes = components.compactMap { Route(rawValue: $0) }
+        self.setPath(routes)
     }
 }

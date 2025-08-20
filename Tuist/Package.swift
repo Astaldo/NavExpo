@@ -15,6 +15,8 @@ import PackageDescription
 let package = Package(
     name: "NavExpo",
     dependencies: [
+        // Swift Navigation by Point-Free for state-driven navigation
+        .package(url: "https://github.com/pointfreeco/swift-navigation", from: "2.0.0"),
         // Add your own dependencies here:
         // .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
         // You can read more about dependencies here: https://docs.tuist.io/documentation/tuist/dependencies

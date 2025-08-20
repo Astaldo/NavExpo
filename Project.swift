@@ -95,7 +95,8 @@ let project = Project(
             sources: ["Shared/Sources/NavigationKit/**"],
             resources: [],
             dependencies: [
-                .package(product: "FoundationKit")
+                .package(product: "FoundationKit"),
+                .external(name: "SwiftNavigation")
             ]
         ),
         .target(

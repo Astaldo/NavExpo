@@ -5,7 +5,7 @@ import ProfileFeature
 import NavigationKit
 
 public struct ContentView: View {
-    @State private var selectedTab: Int = 0
+    @StateObject private var tabState = TabNavigationState()
     @StateObject private var homeNavigator = HomeNavigator()
     @StateObject private var listNavigator = ListNavigator()
     @StateObject private var profileNavigator = ProfileNavigator()
@@ -13,27 +13,27 @@ public struct ContentView: View {
     public init() {}
 
     public var body: some View {
-        TabView(selection: $selectedTab) {
-            HomeEntryView(navigator: self.homeNavigator)
+        TabView(selection: $tabState.selectedTab) {
+            HomeEntryView(navigator: homeNavigator)
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
                 .tag(0)
 
-            ListEntryView(navigator: self.listNavigator)
+            ListEntryView(navigator: listNavigator)
                 .tabItem {
                     Label("List", systemImage: "list.bullet")
                 }
                 .tag(1)
 
-            ProfileEntryView(navigator: self.profileNavigator)
+            ProfileEntryView(navigator: profileNavigator)
                 .tabItem {
                     Label("Profile", systemImage: "person")
                 }
                 .tag(2)
         }
         .onOpenURL { url in
-            self.handleDeepLink(url: url)
+            handleDeepLink(url: url)
         }
     }
 
@@ -42,29 +42,27 @@ public struct ContentView: View {
 
         switch deeplink {
         case .home:
-            self.selectedTab = 0
-            self.homeNavigator.popToRoot()
+            tabState.selectTab(0)
+            homeNavigator.popToRoot()
 
         case .list:
-            self.selectedTab = 1
-            self.listNavigator.popToRoot()
+            tabState.selectTab(1)
+            listNavigator.popToRoot()
 
         case .profile:
-            self.selectedTab = 2
-            self.profileNavigator.popToRoot()
+            tabState.selectTab(2)
+            profileNavigator.popToRoot()
 
         case .profileDetail1:
-            self.selectedTab = 2
-            self.profileNavigator.setPath([.detail1])
+            tabState.selectTab(2)
+            profileNavigator.setPath([.detail1])
 
         case .profileDetail2:
-            self.selectedTab = 2
-            self.profileNavigator.setPath([.detail1, .detail2])
+            tabState.selectTab(2)
+            profileNavigator.setPath([.detail1, .detail2])
         }
-
     }
 }
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {

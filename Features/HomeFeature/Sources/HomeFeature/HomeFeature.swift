@@ -1,7 +1,8 @@
 import SwiftUI
 import NavigationKit
 
-public enum HomeRoute: Hashable {
+@CasePathable
+public enum HomeRoute: String, Hashable, CaseIterable {
     case detail1
     case detail2
 }
@@ -17,18 +18,21 @@ public struct HomeEntryView: View {
 
     public var body: some View {
         NavigationStack(path: $navigator.path) {
-            HomeRootScreen(
-                navigator: navigator
-            )
-            .navigationTitle("Home")
-            .navigationDestination(for: HomeRoute.self) { route in
-                switch route {
-                case .detail1:
-                    HomeDetail1Screen(navigator: self.navigator)
-                case .detail2:
-                    HomeDetail2Screen(navigator: self.navigator)
+            HomeRootScreen(navigator: navigator)
+                .navigationTitle("Home")
+                .navigationDestination(for: HomeRoute.self) { route in
+                    destinationView(for: route)
                 }
-            }
+        }
+    }
+
+    @ViewBuilder
+    private func destinationView(for route: HomeRoute) -> some View {
+        switch route {
+        case .detail1:
+            HomeDetail1Screen(navigator: navigator)
+        case .detail2:
+            HomeDetail2Screen(navigator: navigator)
         }
     }
 }
@@ -36,32 +40,37 @@ public struct HomeEntryView: View {
 struct HomeRootScreen: View {
     let navigator: HomeNavigator
     @Environment(\.openURL) private var openURL
-    @State private var showAlert: Bool = false
+    @State private var destination: HomeDestination?
 
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             Spacer()
 
-            Button("Go to Home Detail 1") {
-                navigator.push(.detail1)
-            }
-            .buttonStyle(.borderedProminent)
-
-            Button("Go to deep in Profile") {
-                if let url = URL(string: "navexpo://navexpo/profile/detail1/detail2") {
-                    openURL(url)
+            VStack(spacing: 16) {
+                Button("Go to Home Detail 1") {
+                    navigator.push(.detail1)
                 }
-            }
-            .padding(.top, 12)
+                .buttonStyle(.borderedProminent)
 
-            Button("Show Alert") {
-                showAlert = true
+                Button("Go to deep in Profile") {
+                    if let url = URL(string: "navexpo://navexpo/profile/detail1/detail2") {
+                        openURL(url)
+                    }
+                }
+                .buttonStyle(.bordered)
+
+                Button("Show Alert") {
+                    destination = .alert
+                }
+                .buttonStyle(.bordered)
             }
-            .padding(.top, 12)
 
             Spacer()
         }
-        .alert("Home Alert", isPresented: $showAlert) {
+        .alert("Home Alert", isPresented: .init(
+            get: { destination == .alert },
+            set: { _ in destination = nil }
+        )) {
             Button("OK", role: .cancel) { }
         } message: {
             Text("This is an alert on the Home root screen.")
@@ -69,40 +78,70 @@ struct HomeRootScreen: View {
     }
 }
 
+// MARK: - Home Destinations
+
+@CasePathable
+enum HomeDestination {
+    case alert
+}
+
 struct HomeDetail1Screen: View {
     let navigator: HomeNavigator
-    @State private var showSheet: Bool = false
+    @State private var destination: HomeDetail1Destination?
 
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             Spacer()
-            Button("Go to Home Detail 2") {
-                navigator.push(.detail2)
-            }
-            .buttonStyle(.borderedProminent)
-            Button("Show Bottom Sheet") {
-                showSheet = true
-            }
-            .padding(.top, 12)
-            Spacer()
-        }
-        .navigationTitle("Home Detail 1")
-        .sheet(isPresented: $showSheet) {
+
             VStack(spacing: 16) {
-                Text("Home Bottom Sheet")
-                    .font(.headline)
-                Text("This is a modal sheet presented from Home Detail 1.")
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                Button("Dismiss") {
-                    showSheet = false
+                Button("Go to Home Detail 2") {
+                    navigator.push(.detail2)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("Show Bottom Sheet") {
+                    destination = .sheet
                 }
                 .buttonStyle(.bordered)
             }
-            .padding()
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
+
+            Spacer()
         }
+        .navigationTitle("Home Detail 1")
+        .sheet(isPresented: .init(
+            get: { destination == .sheet },
+            set: { _ in destination = nil }
+        )) {
+            HomeBottomSheetView()
+        }
+    }
+}
+
+// MARK: - Home Detail 1 Destinations
+
+@CasePathable
+enum HomeDetail1Destination {
+    case sheet
+}
+
+struct HomeBottomSheetView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Home Bottom Sheet")
+                .font(.headline)
+            Text("This is a modal sheet presented from Home Detail 1.")
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            Button("Dismiss") {
+                dismiss()
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
 }
 
@@ -110,12 +149,14 @@ struct HomeDetail2Screen: View {
     let navigator: HomeNavigator
 
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             Spacer()
+
             Button("Back to Home Root") {
                 navigator.popToRoot()
             }
             .buttonStyle(.borderedProminent)
+
             Spacer()
         }
         .navigationTitle("Home Detail 2")

@@ -18,10 +18,16 @@ let package = Package(
             targets: ["FoundationKit"]
         ),
     ],
+    dependencies: [
+        .package(url: "https://github.com/pointfreeco/swift-navigation", from: "2.0.0")
+    ],
     targets: [
         .target(
             name: "NavigationKit",
-            dependencies: ["FoundationKit"],
+            dependencies: [
+                "FoundationKit",
+                .product(name: "SwiftNavigation", package: "swift-navigation")
+            ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-strict-concurrency=complete"]),
                 .unsafeFlags(
