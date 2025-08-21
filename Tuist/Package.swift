@@ -5,10 +5,24 @@ import PackageDescription
     import struct ProjectDescription.PackageSettings
 
     let packageSettings = PackageSettings(
-        // Customize the product types for specific package product
-        // Default is .staticFramework
-        // productTypes: ["Alamofire": .framework,]
-        productTypes: [:]
+        productTypes: [
+            "ComposableArchitecture": .framework,
+            "Dependencies": .framework,
+            "Clocks": .framework,
+            "ConcurrencyExtras": .framework,
+            "CombineSchedulers": .framework,
+            "IdentifiedCollections": .framework,
+            "IssueReporting": .framework,
+            "OrderedCollections": .framework,
+            "_CollectionsUtilities": .framework,
+            "DependenciesMacros": .framework,
+            "SwiftUINavigationCore": .framework,
+            "Perception": .framework,
+            "PerceptionCore": .framework,
+            "CasePaths": .framework,
+            "CustomDump": .framework,
+            "XCTestDynamicOverlay": .framework
+        ]
     )
 #endif
 

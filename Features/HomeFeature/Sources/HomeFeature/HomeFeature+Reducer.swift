@@ -16,6 +16,7 @@ public struct HomeFeature {
         case path(StackActionOf<Path>)
         case goToDetail1
         case goToDetail2
+        case goToDeepInProfile
         case showAlert
         case destination(PresentationAction<Destination.Action>)
     }
@@ -35,6 +36,10 @@ public struct HomeFeature {
             case okAction
         }
     }
+    
+    @Dependency(\.openURL) var openURL
+    
+    public init() {}
     
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -59,6 +64,15 @@ public struct HomeFeature {
             case .goToDetail2:
                 state.path.append(.detail2(HomeDetail2Feature.State()))
                 return .none
+                
+            case .goToDeepInProfile:
+                guard let url = URL(string: "navexpo://navexpo/profile/detail1/detail2") else {
+                    assertionFailure("Invalid URL for deep link")
+                    return .none
+                }
+                return .run { _ in
+                    await openURL(url)
+                }
                 
             case .showAlert:
                 let alertState = AlertState<Destination.Alert>(title: {
@@ -114,7 +128,7 @@ public struct HomeDetail1Feature {
                 // This action will be handled by the parent reducer
                 return .none
                 
-            case .bottomSheet(.dismiss):
+            case .bottomSheet(.presented(.dismiss)):
                 state.bottomSheet = nil
                 return .none
                 

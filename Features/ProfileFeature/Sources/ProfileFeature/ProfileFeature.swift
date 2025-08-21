@@ -1,119 +1,89 @@
 import SwiftUI
-import NavigationKit
-
-public enum ProfileRoute: Hashable {
-    case detail1
-    case detail2
-}
-
-public typealias ProfileNavigator = FeatureNavigator<ProfileRoute>
+import ComposableArchitecture
 
 public struct ProfileEntryView: View {
-    @ObservedObject private var navigator: ProfileNavigator
-
-    public init(navigator: ProfileNavigator) {
-        self.navigator = navigator
+    @Bindable var store: StoreOf<ProfileFeature>
+    
+    public init(store: StoreOf<ProfileFeature>) {
+        self.store = store
     }
-
+    
     public var body: some View {
-        NavigationStack(path: $navigator.path) {
-            ProfileRootScreen(navigator: navigator)
+        @Bindable var store = self.store
+        
+        NavigationStack(
+            path: $store.scope(state: \.path, action: \.path)
+        ) {
+            ProfileRootView(store: store)
                 .navigationTitle("Profile")
-                .navigationDestination(for: ProfileRoute.self) { route in
-                    switch route {
-                    case .detail1:
-                        ProfileDetail1Screen(navigator: navigator)
-                    case .detail2:
-                        ProfileDetail2Screen(navigator: navigator)
-                    }
-                }
+        } destination: { store in
+            switch store.case {
+            case let .detail1(store):
+                ProfileDetail1View(store: store)
+            case let .detail2(store):
+                ProfileDetail2View(store: store)
+            }
         }
     }
 }
 
-struct ProfileRootScreen: View {
-    let navigator: ProfileNavigator
-    @State private var showAlert: Bool = false
-
+struct ProfileRootView: View {
+    @Bindable var store: StoreOf<ProfileFeature>
+    
     var body: some View {
-        VStack {
-            Spacer()
-
-            Button("Go to Profile Detail 1") {
-                navigator.push(.detail1)
+        VStack(spacing: 20) {
+            Image(systemName: "person.crop.circle.fill")
+                .resizable()
+                .frame(width: 100, height: 100)
+                .foregroundColor(.blue)
+            
+            Text(store.username)
+                .font(.title)
+            
+            Text(store.bio)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Button("View Profile Details") {
+                store.send(.goToDetail1)
             }
             .buttonStyle(.borderedProminent)
-
-            Button("Show Alert") {
-                showAlert = true
-            }
-            .padding(.top, 12)
-
-            Spacer()
         }
-        .alert("Profile Alert", isPresented: $showAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("This is an alert on the Profile root screen.")
-        }
+        .padding()
     }
 }
 
-struct ProfileDetail1Screen: View {
-    let navigator: ProfileNavigator
-    @State private var showSheet: Bool = false
-
+struct ProfileDetail1View: View {
+    let store: StoreOf<ProfileDetail1Feature>
+    
     var body: some View {
         VStack {
-            Spacer()
-
-            Button("Go to Profile Detail 2") {
-                navigator.push(.detail2)
+            Text("Profile Detail 1")
+                .font(.largeTitle)
+            
+            Button("Go to Detail 2") {
+                store.send(.goToDetail2)
             }
             .buttonStyle(.borderedProminent)
-
-            Button("Show Bottom Sheet") {
-                showSheet = true
-            }
-            .padding(.top, 12)
-
-            Spacer()
+            .padding(.top, 20)
         }
         .navigationTitle("Profile Detail 1")
-        .sheet(isPresented: $showSheet) {
-            VStack(spacing: 16) {
-                Text("Profile Bottom Sheet")
-                    .font(.headline)
-
-                Text("This is a modal sheet presented from Profile Detail 1.")
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-
-                Button("Dismiss") {
-                    showSheet = false
-                }
-                .buttonStyle(.bordered)
-            }
-            .padding()
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
-        }
     }
 }
 
-struct ProfileDetail2Screen: View {
-    let navigator: ProfileNavigator
-
+struct ProfileDetail2View: View {
+    let store: StoreOf<ProfileDetail2Feature>
+    
     var body: some View {
         VStack {
-            Spacer()
-
-            Button("Back to Profile Root") {
-                navigator.popToRoot()
+            Text("Profile Detail 2")
+                .font(.largeTitle)
+            
+            Button("Back to Root") {
+                store.send(.popToRoot)
             }
             .buttonStyle(.borderedProminent)
-
-            Spacer()
+            .padding(.top, 20)
         }
         .navigationTitle("Profile Detail 2")
     }

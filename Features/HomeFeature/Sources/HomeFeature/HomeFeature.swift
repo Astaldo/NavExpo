@@ -31,7 +31,6 @@ public struct HomeEntryView: View {
 // Root view of the Home feature
 struct HomeRootScreen: View {
     @Bindable var store: StoreOf<HomeFeature>
-    @Environment(\.openURL) private var openURL
     
     var body: some View {
         VStack {
@@ -43,9 +42,7 @@ struct HomeRootScreen: View {
             .buttonStyle(.borderedProminent)
             
             Button("Go to deep in Profile") {
-                if let url = URL(string: "navexpo://navexpo/profile/detail1/detail2") {
-                    openURL(url)
-                }
+                store.send(.goToDeepInProfile)
             }
             .padding(.top, 12)
             

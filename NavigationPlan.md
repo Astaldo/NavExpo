@@ -71,26 +71,26 @@ Convert each feature to TCA pattern in this order:
    - [x] Create Feature.State
    - [x] Create Feature.Action
    - [x] Implement Reducer (skeleton)
-   - [ ] Convert View to use Store
+   - [x] Convert View to use Store
 
 2. ListFeature
    - [x] Create Feature.State
    - [x] Create Feature.Action
    - [x] Implement Reducer (skeleton)
-   - [ ] Convert View to use Store
+   - [x] Convert View to use Store
 
 3. ProfileFeature
    - [x] Create Feature.State
    - [x] Create Feature.Action
    - [x] Implement Reducer (skeleton)
-   - [ ] Convert View to use Store
+   - [x] Convert View to use Store
 
 ### Phase 4: Deep Navigation
 1. Implement deep navigation patterns
-   - [ ] Set up StackState for navigation paths in each feature
-   - [ ] Implement path-based navigation in features that need it
-   - [ ] Create common navigation patterns in FoundationKit
-   - [ ] Set up URL-based deep linking
+   - [x] Set up StackState for navigation paths in each feature
+   - [x] Implement path-based navigation in features that need it
+   - [x] Create common navigation patterns in FoundationKit
+   - [x] Set up URL-based deep linking
 
 ### Phase 5: Testing
 1. Set up testing infrastructure
@@ -140,13 +140,13 @@ struct SomeFeature: Reducer {
 3. ✅ Add TCA dependencies to each feature module
 4. ✅ Create AppFeature in NavExpo as the root coordinator
 5. ✅ Set up basic TCA architecture structure for all features
-6. [ ] Complete HomeFeature with new navigation
-   - Convert HomeFeature.swift to use TCA-based implementation
-   - Update HomeEntryView to use Store
-   - Connect HomeNavigator with TCA path-based navigation
-7. [ ] Complete ListFeature migration to TCA
-8. [ ] Complete ProfileFeature migration to TCA
-9. [ ] Implement deep linking using TCA
+6. ✅ Complete HomeFeature with new navigation
+   - ✅ Convert HomeFeature.swift to use TCA-based implementation
+   - ✅ Update HomeEntryView to use Store
+   - ✅ Connect HomeNavigator with TCA path-based navigation
+7. ✅ Complete ListFeature migration to TCA
+8. ✅ Complete ProfileFeature migration to TCA
+9. ✅ Implement deep linking using TCA
 10. [ ] Add tests
 11. [ ] Final testing and commit changes
 
