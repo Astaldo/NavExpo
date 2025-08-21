@@ -4,19 +4,20 @@
 - HomeFeature
 - ListFeature
 - ProfileFeature
-- FoundationKit (contains TCA dependencies)
+- NavigationKit (contains TCA dependencies)
+- FoundationKit (utility code)
 
 ## Implementation Phases
 
 ### Phase 1: Foundation Setup ✅
 1. Set up core TCA infrastructure
    - [x] Add TCA dependency to Package.swift
-   - [x] Add TCA dependency to FoundationKit's Project.swift
-   - [x] Remove NavigationKit module
-   - [x] Update all feature dependencies to use FoundationKit
+   - [x] Add TCA dependency to NavigationKit's Project.swift
+   - [x] Keep NavigationKit module for now as it contains DeepLink functionality
+   - [x] Update all feature dependencies to use NavigationKit
 
 ### Phase 2: Root Navigation
-1. Create AppFeature in FoundationKit
+1. Create AppFeature in NavExpo/Sources
    ```swift
    @Reducer
    struct AppFeature {
@@ -127,13 +128,13 @@ struct SomeFeature: Reducer {
 4. Deep linking support through URL handling
 
 ## Next Steps
-1. ✅ Remove NavigationKit module
-2. ✅ Add TCA dependency to FoundationKit
-3. [ ] Create shared navigation utilities in FoundationKit
-4. [ ] Create AppFeature as the root coordinator
+1. ✅ Add TCA dependency to Package.swift
+2. ✅ Restore NavigationKit module and add TCA dependency to it
+3. [ ] Enhance NavigationKit with TCA-based navigation utilities
+4. [ ] Create AppFeature in NavigationKit as the root coordinator
 5. [ ] Implement HomeFeature with new navigation
 6. [ ] Add remaining features
-7. [ ] Implement deep linking
+7. [ ] Implement deep linking using TCA
 8. [ ] Add tests
 9. [ ] Final testing and commit changes
 
