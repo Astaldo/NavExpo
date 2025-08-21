@@ -81,6 +81,3 @@ struct AppFeature {
         }
     }
 }
-
-// Keep DeepLink enum from original NavigationKit
-// This will be migrated into a TCA pattern once all features are converted
