@@ -15,8 +15,10 @@
    - [x] Add TCA dependency to NavigationKit's Project.swift
    - [x] Keep NavigationKit module for now as it contains DeepLink functionality
    - [x] Update all feature dependencies to use NavigationKit
+   - [x] Add TCA dependency to all feature modules
+   - [x] Project generated successfully with TCA dependencies
 
-### Phase 2: Root Navigation
+### Phase 2: Root Navigation ✅
 1. Create AppFeature in NavExpo/Sources
    ```swift
    @Reducer
@@ -57,25 +59,30 @@
      }
    }
    ```
+   - [x] Create AppFeature with basic structure
+   - [x] Update all feature projects to include TCA dependency
+   - [x] Create skeleton implementations for TCA-based features
+   - [x] Create AppView with TabView navigation
+   - [x] Update NavExpoApp to use TCA architecture
 
 ### Phase 3: Feature Migration
 Convert each feature to TCA pattern in this order:
 1. HomeFeature
-   - [ ] Create Feature.State
-   - [ ] Create Feature.Action
-   - [ ] Implement Reducer
+   - [x] Create Feature.State
+   - [x] Create Feature.Action
+   - [x] Implement Reducer (skeleton)
    - [ ] Convert View to use Store
 
 2. ListFeature
-   - [ ] Create Feature.State
-   - [ ] Create Feature.Action
-   - [ ] Implement Reducer
+   - [x] Create Feature.State
+   - [x] Create Feature.Action
+   - [x] Implement Reducer (skeleton)
    - [ ] Convert View to use Store
 
 3. ProfileFeature
-   - [ ] Create Feature.State
-   - [ ] Create Feature.Action
-   - [ ] Implement Reducer
+   - [x] Create Feature.State
+   - [x] Create Feature.Action
+   - [x] Implement Reducer (skeleton)
    - [ ] Convert View to use Store
 
 ### Phase 4: Deep Navigation
@@ -130,12 +137,17 @@ struct SomeFeature: Reducer {
 ## Next Steps
 1. ✅ Add TCA dependency to Package.swift
 2. ✅ Restore NavigationKit module and add TCA dependency to it
-3. [ ] Enhance NavigationKit with TCA-based navigation utilities
-4. [ ] Create AppFeature in NavigationKit as the root coordinator
-5. [ ] Implement HomeFeature with new navigation
-6. [ ] Add remaining features
-7. [ ] Implement deep linking using TCA
-8. [ ] Add tests
-9. [ ] Final testing and commit changes
+3. ✅ Add TCA dependencies to each feature module
+4. ✅ Create AppFeature in NavExpo as the root coordinator
+5. ✅ Set up basic TCA architecture structure for all features
+6. [ ] Complete HomeFeature with new navigation
+   - Convert HomeFeature.swift to use TCA-based implementation
+   - Update HomeEntryView to use Store
+   - Connect HomeNavigator with TCA path-based navigation
+7. [ ] Complete ListFeature migration to TCA
+8. [ ] Complete ProfileFeature migration to TCA
+9. [ ] Implement deep linking using TCA
+10. [ ] Add tests
+11. [ ] Final testing and commit changes
 
 Please review this plan and let me know if you'd like to make any adjustments or have specific requirements for any of these phases.
