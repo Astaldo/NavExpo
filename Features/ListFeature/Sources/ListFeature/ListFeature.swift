@@ -1,10 +1,11 @@
 import SwiftUI
+import SwiftNavigation
 import NavigationKit
 
 @CasePathable
 public enum ListRoute: String, Hashable, CaseIterable {
-    case detail1
-    case detail2
+    case listDetailsOne
+    case listDetailsTwo
 }
 
 public typealias ListNavigator = FeatureNavigator<ListRoute>
@@ -29,9 +30,9 @@ public struct ListEntryView: View {
     @ViewBuilder
     private func destinationView(for route: ListRoute) -> some View {
         switch route {
-        case .detail1:
+        case .listDetailsOne:
             ListDetail1Screen(navigator: navigator)
-        case .detail2:
+        case .listDetailsTwo:
             ListDetail2Screen(navigator: navigator)
         }
     }
@@ -47,7 +48,7 @@ struct ListRootScreen: View {
 
             VStack(spacing: 16) {
                 Button("Go to List Detail 1") {
-                    navigator.push(.detail1)
+                    navigator.push(.listDetailsOne)
                 }
                 .buttonStyle(.borderedProminent)
 
@@ -87,7 +88,7 @@ struct ListDetail1Screen: View {
 
             VStack(spacing: 16) {
                 Button("Go to List Detail 2") {
-                    navigator.push(.detail2)
+                    navigator.push(.listDetailsTwo)
                 }
                 .buttonStyle(.borderedProminent)
 

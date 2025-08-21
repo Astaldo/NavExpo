@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftNavigation
 import NavigationKit
 
 @CasePathable

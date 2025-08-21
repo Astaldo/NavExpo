@@ -6,7 +6,7 @@ import NavigationKit
 
 public struct ContentView: View {
     @StateObject private var tabState = TabNavigationState()
-    @StateObject private var homeNavigator = HomeNavigator()
+    @State private var homeEntryView = HomeEntryView()
     @StateObject private var listNavigator = ListNavigator()
     @StateObject private var profileNavigator = ProfileNavigator()
 
@@ -14,7 +14,7 @@ public struct ContentView: View {
 
     public var body: some View {
         TabView(selection: $tabState.selectedTab) {
-            HomeEntryView(navigator: homeNavigator)
+            homeEntryView
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
@@ -43,7 +43,6 @@ public struct ContentView: View {
         switch deeplink {
         case .home:
             tabState.selectTab(0)
-            homeNavigator.popToRoot()
 
         case .list:
             tabState.selectTab(1)

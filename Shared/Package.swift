@@ -26,7 +26,8 @@ let package = Package(
             name: "NavigationKit",
             dependencies: [
                 "FoundationKit",
-                .product(name: "SwiftNavigation", package: "swift-navigation")
+                .product(name: "SwiftNavigation", package: "swift-navigation"),
+                .product(name: "SwiftUINavigation", package: "swift-navigation")
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-strict-concurrency=complete"]),

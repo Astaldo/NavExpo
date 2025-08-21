@@ -1,93 +1,88 @@
 import SwiftUI
 import NavigationKit
 
-@CasePathable
-public enum HomeRoute: String, Hashable, CaseIterable {
-    case detail1
-    case detail2
+// MARK: - Home Navigation State
+
+@Observable
+public class HomeModel {
+    var destination: Destination?
+
+    @CasePathable
+    public enum Destination {
+        case detailOne(model: String)
+        case detailTwo(model: String)
+        case alert(model: String)
+        case bottomSheet(model: String)
+    }
+
+    func navigateToDetailOne() {
+        self.destination = .detailOne(model: "Detail One Model")
+    }
+
+    func navigateToDetailTwo() {
+        self.destination = .detailTwo(model: "Detail Two Model")
+    }
+
+    func presentAlert() {
+        self.destination = .alert(model: "Alert Model")
+    }
+
+    func presentBottomSheet() {
+        self.destination = .bottomSheet(model: "Bottom Sheet Model")
+    }
+
+    func popToRoot() {
+        self.destination = nil
+    }
 }
 
-public typealias HomeNavigator = FeatureNavigator<HomeRoute>
+// MARK: - Public Entry Point
 
 public struct HomeEntryView: View {
-    @ObservedObject private var navigator: HomeNavigator
+    @State var model = HomeModel()
+    @Environment(\.openURL) private var openURL
 
-    public init(navigator: HomeNavigator) {
-        self.navigator = navigator
-    }
+    public init() {}
 
     public var body: some View {
-        NavigationStack(path: $navigator.path) {
-            HomeRootScreen(navigator: navigator)
-                .navigationTitle("Home")
-                .navigationDestination(for: HomeRoute.self) { route in
-                    destinationView(for: route)
-                }
-        }
-    }
+        NavigationStack() {
+            VStack(spacing: 20) {
+                Spacer()
 
-    @ViewBuilder
-    private func destinationView(for route: HomeRoute) -> some View {
-        switch route {
-        case .detail1:
-            HomeDetail1Screen(navigator: navigator)
-        case .detail2:
-            HomeDetail2Screen(navigator: navigator)
-        }
-    }
-}
+                VStack(spacing: 16) {
+                    Button("Go to Home Detail 1") {
+                        model.navigateToDetailOne()
+                    }
+                    .buttonStyle(.borderedProminent)
 
-struct HomeRootScreen: View {
-    let navigator: HomeNavigator
-    @Environment(\.openURL) private var openURL
-    @State private var destination: HomeDestination?
-
-    var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
-
-            VStack(spacing: 16) {
-                Button("Go to Home Detail 1") {
-                    navigator.push(.detail1)
-                }
-                .buttonStyle(.borderedProminent)
-
-                Button("Go to deep in Profile") {
-                    if let url = URL(string: "navexpo://navexpo/profile/detail1/detail2") {
+                    Button("Go to deep in Profile") {
+                        guard let url = URL(string: "navexpo://navexpo/profile/detail1/detail2") else { return }
                         openURL(url)
                     }
-                }
-                .buttonStyle(.bordered)
+                    .buttonStyle(.bordered)
 
-                Button("Show Alert") {
-                    destination = .alert
+                    Button("Show Alert") {
+                        model.presentAlert()
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
+
+                Spacer()
             }
-
-            Spacer()
-        }
-        .alert("Home Alert", isPresented: .init(
-            get: { destination == .alert },
-            set: { _ in destination = nil }
-        )) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("This is an alert on the Home root screen.")
+            .navigationTitle("Home")
+            .navigationDestination(item: $model.destination.detailOne) { _ in
+                HomeDetail1Screen(model: self.model)
+            }
         }
     }
 }
 
-// MARK: - Home Destinations
+// MARK: - Home Root Screen
 
-@CasePathable
-enum HomeDestination {
-    case alert
-}
+// MARK: - Detail Screens
 
 struct HomeDetail1Screen: View {
-    let navigator: HomeNavigator
-    @State private var destination: HomeDetail1Destination?
+    @State var model: HomeModel
 
     var body: some View {
         VStack(spacing: 20) {
@@ -95,12 +90,12 @@ struct HomeDetail1Screen: View {
 
             VStack(spacing: 16) {
                 Button("Go to Home Detail 2") {
-                    navigator.push(.detail2)
+                    model.navigateToDetailTwo()
                 }
                 .buttonStyle(.borderedProminent)
 
                 Button("Show Bottom Sheet") {
-                    destination = .sheet
+                    model.presentBottomSheet()
                 }
                 .buttonStyle(.bordered)
             }
@@ -108,25 +103,31 @@ struct HomeDetail1Screen: View {
             Spacer()
         }
         .navigationTitle("Home Detail 1")
-        .sheet(isPresented: .init(
-            get: { destination == .sheet },
-            set: { _ in destination = nil }
-        )) {
-            HomeBottomSheetView()
+        .navigationDestination(item: $model.destination.detailTwo) { _ in
+            HomeDetail2Screen(model: self.model)
         }
     }
 }
 
-// MARK: - Home Detail 1 Destinations
+struct HomeDetail2Screen: View {
+    @State var model: HomeModel
 
-@CasePathable
-enum HomeDetail1Destination {
-    case sheet
+    var body: some View {
+        VStack(spacing: 20) {
+            Spacer()
+
+            Button("Back to Home Root") {
+                model.popToRoot()
+            }
+            .buttonStyle(.borderedProminent)
+
+            Spacer()
+        }
+        .navigationTitle("Home Detail 2")
+    }
 }
 
 struct HomeBottomSheetView: View {
-    @Environment(\.dismiss) private var dismiss
-
     var body: some View {
         VStack(spacing: 16) {
             Text("Home Bottom Sheet")
@@ -135,30 +136,12 @@ struct HomeBottomSheetView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
             Button("Dismiss") {
-                dismiss()
+                // TODO: dismiss
             }
             .buttonStyle(.bordered)
         }
         .padding()
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-    }
-}
-
-struct HomeDetail2Screen: View {
-    let navigator: HomeNavigator
-
-    var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
-
-            Button("Back to Home Root") {
-                navigator.popToRoot()
-            }
-            .buttonStyle(.borderedProminent)
-
-            Spacer()
-        }
-        .navigationTitle("Home Detail 2")
     }
 }
