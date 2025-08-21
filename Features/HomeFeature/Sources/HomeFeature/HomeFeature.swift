@@ -1,93 +1,89 @@
 import SwiftUI
-import NavigationKit
-
-public enum HomeRoute: Hashable {
-    case detail1
-    case detail2
-}
-
-public typealias HomeNavigator = FeatureNavigator<HomeRoute>
+import ComposableArchitecture
 
 public struct HomeEntryView: View {
-    @ObservedObject private var navigator: HomeNavigator
-
-    public init(navigator: HomeNavigator) {
-        self.navigator = navigator
+    @Bindable var store: StoreOf<HomeFeature>
+    
+    public init(store: StoreOf<HomeFeature>) {
+        self.store = store
     }
-
+    
     public var body: some View {
-        NavigationStack(path: $navigator.path) {
-            HomeRootScreen(
-                navigator: navigator
-            )
-            .navigationTitle("Home")
-            .navigationDestination(for: HomeRoute.self) { route in
-                switch route {
-                case .detail1:
-                    HomeDetail1Screen(navigator: self.navigator)
-                case .detail2:
-                    HomeDetail2Screen(navigator: self.navigator)
-                }
+        @Bindable var store = self.store
+        
+        NavigationStack(
+            path: $store.scope(state: \.path, action: \.path)
+        ) {
+            HomeRootScreen(store: store)
+                .navigationTitle("Home")
+                .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+        } destination: { store in
+            switch store.case {
+            case let .detail1(store):
+                HomeDetail1Screen(store: store)
+            case let .detail2(store):
+                HomeDetail2Screen(store: store)
             }
         }
     }
 }
 
+// Root view of the Home feature
 struct HomeRootScreen: View {
-    let navigator: HomeNavigator
+    @Bindable var store: StoreOf<HomeFeature>
     @Environment(\.openURL) private var openURL
-    @State private var showAlert: Bool = false
-
+    
     var body: some View {
         VStack {
             Spacer()
-
+            
             Button("Go to Home Detail 1") {
-                navigator.push(.detail1)
+                store.send(.goToDetail1)
             }
             .buttonStyle(.borderedProminent)
-
+            
             Button("Go to deep in Profile") {
                 if let url = URL(string: "navexpo://navexpo/profile/detail1/detail2") {
                     openURL(url)
                 }
             }
             .padding(.top, 12)
-
+            
             Button("Show Alert") {
-                showAlert = true
+                store.send(.showAlert)
             }
             .padding(.top, 12)
-
+            
             Spacer()
-        }
-        .alert("Home Alert", isPresented: $showAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("This is an alert on the Home root screen.")
         }
     }
 }
 
 struct HomeDetail1Screen: View {
-    let navigator: HomeNavigator
-    @State private var showSheet: Bool = false
-
+    @Bindable var store: StoreOf<HomeDetail1Feature>
+    
     var body: some View {
+        @Bindable var store = self.store
+        
         VStack {
             Spacer()
-            Button("Go to Home Detail 2") {
-                navigator.push(.detail2)
+            
+            Button("Go to Home Detail 2") {                
+                store.send(.goToDetail2)
             }
             .buttonStyle(.borderedProminent)
+            
             Button("Show Bottom Sheet") {
-                showSheet = true
+                store.send(.toggleSheet)
             }
             .padding(.top, 12)
+            
             Spacer()
         }
         .navigationTitle("Home Detail 1")
-        .sheet(isPresented: $showSheet) {
+        .sheet(
+            item: $store.scope(state: \.bottomSheet, action: \.bottomSheet)
+        ) { store in
             VStack(spacing: 16) {
                 Text("Home Bottom Sheet")
                     .font(.headline)
@@ -95,7 +91,7 @@ struct HomeDetail1Screen: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 Button("Dismiss") {
-                    showSheet = false
+                    store.send(.dismiss)
                 }
                 .buttonStyle(.bordered)
             }
@@ -107,15 +103,17 @@ struct HomeDetail1Screen: View {
 }
 
 struct HomeDetail2Screen: View {
-    let navigator: HomeNavigator
-
+    let store: StoreOf<HomeDetail2Feature>
+    
     var body: some View {
         VStack {
             Spacer()
+            
             Button("Back to Home Root") {
-                navigator.popToRoot()
+                store.send(.popToRoot)
             }
             .buttonStyle(.borderedProminent)
+            
             Spacer()
         }
         .navigationTitle("Home Detail 2")
