@@ -26,7 +26,7 @@ let project = Project(
             sources: ["Sources/**"],
             resources: ["Resources/**"],
             dependencies: [
-                .project(target: "NavigationKit", path: "../Shared"),
+                .project(target: "FoundationKit", path: "../Shared"),
                 .project(target: "HomeFeature", path: "../Features/HomeFeature"),
                 .project(target: "ListFeature", path: "../Features/ListFeature"),
                 .project(target: "ProfileFeature", path: "../Features/ProfileFeature"),

@@ -12,7 +12,7 @@ let project = Project(
             infoPlist: .default,
             sources: ["Sources/ProfileFeature/**"],
             dependencies: [
-                .project(target: "NavigationKit", path: "../../Shared")
+                .project(target: "FoundationKit", path: "../../Shared")
             ]
         ),
         .target(
