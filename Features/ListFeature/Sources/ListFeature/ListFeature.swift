@@ -22,7 +22,7 @@ public struct ListEntryView: View {
             desinationRouter: self.desinationRouter,
             configuration: .init(mode: self.navigationMode)) {
                 ListRootScreen(navigator: self.navigator)
-                    .navigationTitle("List")
+                    .uiNavigationTitle("List")
         }
     }
 }
@@ -80,7 +80,7 @@ public struct ListDetail1Screen: View {
             .padding(.top, 12)
             Spacer()
         }
-        .navigationTitle("List Detail 1")
+        .uiNavigationTitle("List Detail 1")
         .sheet(isPresented: $showSheet) {
             VStack(spacing: 16) {
                 Text("List Bottom Sheet")
@@ -118,6 +118,6 @@ public struct ListDetail2Screen: View {
 
             Spacer()
         }
-        .navigationTitle("List Detail 2")
+        .uiNavigationTitle("List Detail 2")
     }
 }

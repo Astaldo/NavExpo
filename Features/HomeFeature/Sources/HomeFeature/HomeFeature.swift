@@ -24,7 +24,7 @@ public struct HomeEntryView: View {
                 HomeRootScreen(
                     navigator: navigator
                 )
-                .navigationTitle("Home")
+                .uiNavigationTitle("Home")
         }
     }
 }
@@ -90,7 +90,7 @@ public struct HomeDetail1Screen: View {
             .padding(.top, 12)
             Spacer()
         }
-        .navigationTitle("Home Detail 1")
+        .uiNavigationTitle("Home Detail 1")
         .sheet(isPresented: $showSheet) {
             VStack(spacing: 16) {
                 Text("Home Bottom Sheet")
@@ -126,6 +126,6 @@ public struct HomeDetail2Screen: View {
             .buttonStyle(.borderedProminent)
             Spacer()
         }
-        .navigationTitle("Home Detail 2")
+        .uiNavigationTitle("Home Detail 2")
     }
 }

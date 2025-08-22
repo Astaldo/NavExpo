@@ -15,14 +15,13 @@ public struct NavigationBarData {
     public var backgroundColor: UIColor?
     public var foregroundColor: UIColor?
     public var isHidden: Bool = false
-    public var prefersLargeTitles: Bool = false
+    public var prefersLargeTitles: Bool = true
     public var backButtonHidden: Bool = false
     public var leftBarButtonItems: [UIBarButtonItem] = []
     public var rightBarButtonItems: [UIBarButtonItem] = []
     
     public init() {}
 }
-
 
 /// SwiftUI-friendly proxy you use from views to push/pop SwiftUI screens.
 public final class UINavigationProxy: ObservableObject {
@@ -122,10 +121,10 @@ public final class UINavigationProxy: ObservableObject {
         guard let nav = navController,
               let topViewController = nav.topViewController else { return }
         
-        let data = navigationBarData
+        let data = self.navigationBarData
         
         // Update title
-        topViewController.navigationItem.title = data.title
+        //topViewController.navigationItem.title = data.title
         topViewController.navigationItem.largeTitleDisplayMode = data.titleDisplayMode
         
         // Update navigation bar visibility

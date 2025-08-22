@@ -22,7 +22,7 @@ public struct ProfileEntryView: View {
             desinationRouter: self.desinationRouter,
             configuration: .init(mode: self.navigationMode)) {
                 ProfileRootScreen(navigator: navigator)
-                    .navigationTitle("Profile")
+                    .uiNavigationTitle("Profile")
         }
     }
 }
@@ -83,7 +83,7 @@ public struct ProfileDetail1Screen: View {
 
             Spacer()
         }
-        .navigationTitle("Profile Detail 1")
+        .uiNavigationTitle("Profile Detail 1")
         .sheet(isPresented: $showSheet) {
             VStack(spacing: 16) {
                 Text("Profile Bottom Sheet")
@@ -123,6 +123,6 @@ public struct ProfileDetail2Screen: View {
 
             Spacer()
         }
-        .navigationTitle("Profile Detail 2")
+        .uiNavigationTitle("Profile Detail 2")
     }
 }
