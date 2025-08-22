@@ -1,25 +1,11 @@
-import SwiftUI
-import FoundationKit
+//
+//  DeepLink.swift
+//  Shared
+//
+//  Created by David Blake on 22/08/2025.
+//
 
-public final class FeatureNavigator<Route: Hashable>: ObservableObject {
-    @Published public var path: NavigationPath
-
-    public init(path: NavigationPath = .init()) {
-        self.path = path
-    }
-
-    public func push(_ route: Route) {
-        self.path.append(route)
-    }
-
-    public func setPath(_ routes: [Route]) {
-        self.path = NavigationPath(routes)
-    }
-
-    public func popToRoot() {
-        self.path = NavigationPath()
-    }
-}
+import Foundation
 
 public enum DeepLink: Equatable {
     case home
@@ -45,6 +31,22 @@ public enum DeepLink: Equatable {
             self = .list
         default:
             return nil
+        }
+    }
+    
+    // Convert DeepLink to AppRoute for navigation
+    public func toAppRoutes() -> [AppRoute] {
+        switch self {
+        case .home:
+            return []
+        case .list:
+            return []
+        case .profile:
+            return []
+        case .profileDetail1:
+            return [.profileDetail1]
+        case .profileDetail2:
+            return [.profileDetail1, .profileDetail2]
         }
     }
 }

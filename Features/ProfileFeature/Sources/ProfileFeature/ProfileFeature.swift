@@ -1,46 +1,46 @@
 import SwiftUI
 import NavigationKit
 
-public enum ProfileRoute: Hashable {
-    case detail1
-    case detail2
-}
-
-public typealias ProfileNavigator = FeatureNavigator<ProfileRoute>
-
 public struct ProfileEntryView: View {
-    @ObservedObject private var navigator: ProfileNavigator
-
-    public init(navigator: ProfileNavigator) {
+    @ObservedObject private var navigator: AppNavigator
+    private let desinationRouter: any DestinationRouterProtocol
+    private let navigationMode: NavigationMode
+ 
+    public init(
+        navigator: AppNavigator,
+        desinationRouter: any DestinationRouterProtocol,
+        navigationMode: NavigationMode
+    ) {
         self.navigator = navigator
+        self.desinationRouter = desinationRouter
+        self.navigationMode = navigationMode
     }
 
     public var body: some View {
-        NavigationStack(path: $navigator.path) {
-            ProfileRootScreen(navigator: navigator)
-                .navigationTitle("Profile")
-                .navigationDestination(for: ProfileRoute.self) { route in
-                    switch route {
-                    case .detail1:
-                        ProfileDetail1Screen(navigator: navigator)
-                    case .detail2:
-                        ProfileDetail2Screen(navigator: navigator)
-                    }
-                }
+        UINavigationStack(
+            navigator: self.navigator,
+            desinationRouter: self.desinationRouter,
+            configuration: .init(mode: self.navigationMode)) {
+                ProfileRootScreen(navigator: navigator)
+                    .navigationTitle("Profile")
         }
     }
 }
 
-struct ProfileRootScreen: View {
-    let navigator: ProfileNavigator
+public struct ProfileRootScreen: View {
+    let navigator: AppNavigator
     @State private var showAlert: Bool = false
 
-    var body: some View {
+    public init(navigator: AppNavigator) {
+        self.navigator = navigator
+    }
+    
+    public var body: some View {
         VStack {
             Spacer()
 
             Button("Go to Profile Detail 1") {
-                navigator.push(.detail1)
+                navigator.push(.profileDetail1)
             }
             .buttonStyle(.borderedProminent)
 
@@ -59,16 +59,20 @@ struct ProfileRootScreen: View {
     }
 }
 
-struct ProfileDetail1Screen: View {
-    let navigator: ProfileNavigator
+public struct ProfileDetail1Screen: View {
+    let navigator: AppNavigator
     @State private var showSheet: Bool = false
 
-    var body: some View {
+    public init(navigator: AppNavigator) {
+        self.navigator = navigator
+    }
+    
+    public var body: some View {
         VStack {
             Spacer()
 
             Button("Go to Profile Detail 2") {
-                navigator.push(.detail2)
+                navigator.push(.profileDetail2)
             }
             .buttonStyle(.borderedProminent)
 
@@ -101,10 +105,14 @@ struct ProfileDetail1Screen: View {
     }
 }
 
-struct ProfileDetail2Screen: View {
-    let navigator: ProfileNavigator
+public struct ProfileDetail2Screen: View {
+    let navigator: AppNavigator
 
-    var body: some View {
+    public init(navigator: AppNavigator) {
+        self.navigator = navigator
+    }
+    
+    public var body: some View {
         VStack {
             Spacer()
 

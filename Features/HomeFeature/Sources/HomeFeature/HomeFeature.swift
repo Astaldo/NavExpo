@@ -1,49 +1,49 @@
 import SwiftUI
 import NavigationKit
 
-public enum HomeRoute: Hashable {
-    case detail1
-    case detail2
-}
-
-public typealias HomeNavigator = FeatureNavigator<HomeRoute>
-
 public struct HomeEntryView: View {
-    @ObservedObject private var navigator: HomeNavigator
-
-    public init(navigator: HomeNavigator) {
+    @ObservedObject private var navigator: AppNavigator
+    private let desinationRouter: any DestinationRouterProtocol
+    private let navigationMode: NavigationMode
+ 
+    public init(
+        navigator: AppNavigator,
+        desinationRouter: any DestinationRouterProtocol,
+        navigationMode: NavigationMode
+    ) {
         self.navigator = navigator
+        self.desinationRouter = desinationRouter
+        self.navigationMode = navigationMode
     }
 
     public var body: some View {
-        NavigationStack(path: $navigator.path) {
-            HomeRootScreen(
-                navigator: navigator
-            )
-            .navigationTitle("Home")
-            .navigationDestination(for: HomeRoute.self) { route in
-                switch route {
-                case .detail1:
-                    HomeDetail1Screen(navigator: self.navigator)
-                case .detail2:
-                    HomeDetail2Screen(navigator: self.navigator)
-                }
-            }
+        UINavigationStack(
+            navigator: self.navigator,
+            desinationRouter: self.desinationRouter,
+            configuration: .init(mode: self.navigationMode)) {
+                HomeRootScreen(
+                    navigator: navigator
+                )
+                .navigationTitle("Home")
         }
     }
 }
 
-struct HomeRootScreen: View {
-    let navigator: HomeNavigator
+public struct HomeRootScreen: View {
+    let navigator: AppNavigator
     @Environment(\.openURL) private var openURL
     @State private var showAlert: Bool = false
 
-    var body: some View {
+    public init(navigator: AppNavigator) {
+        self.navigator = navigator
+    }
+    
+    public var body: some View {
         VStack {
             Spacer()
 
             Button("Go to Home Detail 1") {
-                navigator.push(.detail1)
+                navigator.push(.homeDetail1)
             }
             .buttonStyle(.borderedProminent)
 
@@ -69,15 +69,19 @@ struct HomeRootScreen: View {
     }
 }
 
-struct HomeDetail1Screen: View {
-    let navigator: HomeNavigator
+public struct HomeDetail1Screen: View {
+    let navigator: AppNavigator
     @State private var showSheet: Bool = false
 
-    var body: some View {
+    public init(navigator: AppNavigator) {
+        self.navigator = navigator
+    }
+    
+    public var body: some View {
         VStack {
             Spacer()
             Button("Go to Home Detail 2") {
-                navigator.push(.detail2)
+                navigator.push(.homeDetail2)
             }
             .buttonStyle(.borderedProminent)
             Button("Show Bottom Sheet") {
@@ -106,10 +110,14 @@ struct HomeDetail1Screen: View {
     }
 }
 
-struct HomeDetail2Screen: View {
-    let navigator: HomeNavigator
+public struct HomeDetail2Screen: View {
+    let navigator: AppNavigator
 
-    var body: some View {
+    public init(navigator: AppNavigator) {
+        self.navigator = navigator
+    }
+    
+    public var body: some View {
         VStack {
             Spacer()
             Button("Back to Home Root") {
