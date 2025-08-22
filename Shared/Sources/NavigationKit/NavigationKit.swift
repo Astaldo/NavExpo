@@ -1,26 +1,6 @@
 import SwiftUI
 import FoundationKit
 
-public final class FeatureNavigator<Route: Hashable>: ObservableObject {
-    @Published public var path: NavigationPath
-
-    public init(path: NavigationPath = .init()) {
-        self.path = path
-    }
-
-    public func push(_ route: Route) {
-        self.path.append(route)
-    }
-
-    public func setPath(_ routes: [Route]) {
-        self.path = NavigationPath(routes)
-    }
-
-    public func popToRoot() {
-        self.path = NavigationPath()
-    }
-}
-
 public enum DeepLink: Equatable {
     case home
     case list

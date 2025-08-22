@@ -34,7 +34,8 @@ let project = Project(
             infoPlist: .default,
             sources: ["Sources/NavigationKit/**"],
             dependencies: [
-                .target(name: "FoundationKit")
+                .target(name: "FoundationKit"),
+                .external(name: "ComposableArchitecture")
             ]
         ),
         .target(

@@ -1,115 +1,67 @@
 import SwiftUI
-import NavigationKit
-
-public enum ListRoute: Hashable {
-    case detail1
-    case detail2
-}
-
-public typealias ListNavigator = FeatureNavigator<ListRoute>
+import ComposableArchitecture
 
 public struct ListEntryView: View {
-    @ObservedObject private var navigator: ListNavigator
-
-    public init(navigator: ListNavigator) {
-        self.navigator = navigator
+    @Bindable var store: StoreOf<ListFeature>
+    
+    public init(store: StoreOf<ListFeature>) {
+        self.store = store
     }
-
-    public var body: some View {
-        NavigationStack(path: $navigator.path) {
-            ListRootScreen(navigator: navigator)
+    
+    public var body: some View {        
+        NavigationStack(
+            path: $store.scope(state: \.path, action: \.path)
+        ) {
+            ListRootView(store: store)
                 .navigationTitle("List")
-                .navigationDestination(for: ListRoute.self) { route in
-                    switch route {
-                    case .detail1:
-                        ListDetail1Screen(navigator: navigator)
-                    case .detail2:
-                        ListDetail2Screen(navigator: navigator)
-                    }
+        } destination: { store in
+            switch store.case {
+            case let .detail(store):
+                ListDetailView(store: store)
+            }
+        }
+    }
+}
+
+struct ListRootView: View {
+    @Bindable var store: StoreOf<ListFeature>
+    
+    var body: some View {
+        List {
+            ForEach(store.items) { item in
+                Button {
+                    store.send(.itemTapped(item))
+                } label: {
+                    Text(item.title)
                 }
+            }
+        }
+        .onAppear {
+            store.send(.loadItems)
         }
     }
 }
 
-struct ListRootScreen: View {
-    let navigator: ListNavigator
-    @State private var showAlert: Bool = false
-
+struct ListDetailView: View {
+    let store: StoreOf<ListDetailFeature>
+    
     var body: some View {
+        let state = store.state
+        
         VStack {
-            Spacer()
-
-            Button("Go to List Detail 1") {
-                navigator.push(.detail1)
+            Text(state.item.title)
+                .font(.largeTitle)
+                .padding()
+            
+            Text("Item Detail Screen")
+                .font(.headline)
+            
+            Button("Back to Root") {
+                store.send(.backToRoot)
             }
-            .buttonStyle(.borderedProminent)
-
-            Button("Show Alert") {
-                showAlert = true
-            }
-            .padding(.top, 12)
-
-            Spacer()
+            .buttonStyle(.bordered)
+            .padding(.top, 20)
         }
-        .alert("List Alert", isPresented: $showAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("This is an alert on the List root screen.")
-        }
-    }
-}
-
-struct ListDetail1Screen: View {
-    let navigator: ListNavigator
-    @State private var showSheet: Bool = false
-
-    var body: some View {
-        VStack {
-            Spacer()
-            Button("Go to List Detail 2") {
-                navigator.push(.detail2)
-            }
-            .buttonStyle(.borderedProminent)
-            Button("Show Bottom Sheet") {
-                showSheet = true
-            }
-            .padding(.top, 12)
-            Spacer()
-        }
-        .navigationTitle("List Detail 1")
-        .sheet(isPresented: $showSheet) {
-            VStack(spacing: 16) {
-                Text("List Bottom Sheet")
-                    .font(.headline)
-                Text("This is a modal sheet presented from List Detail 1.")
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                Button("Dismiss") {
-                    showSheet = false
-                }
-                .buttonStyle(.bordered)
-            }
-            .padding()
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
-        }
-    }
-}
-
-struct ListDetail2Screen: View {
-    let navigator: ListNavigator
-
-    var body: some View {
-        VStack {
-            Spacer()
-
-            Button("Back to List Root") {
-                navigator.popToRoot()
-            }
-            .buttonStyle(.borderedProminent)
-
-            Spacer()
-        }
-        .navigationTitle("List Detail 2")
+        .navigationTitle(state.item.title)
     }
 }

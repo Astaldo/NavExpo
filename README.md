@@ -35,6 +35,7 @@ The `main` branch contains the Vanilla SwiftUI implementation. Create additional
 
 ### Setup
 ```bash
+tuist install
 tuist generate
 open NavExpo.xcworkspace
 ```
