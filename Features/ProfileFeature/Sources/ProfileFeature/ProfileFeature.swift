@@ -27,12 +27,37 @@ public struct ProfileEntryView: View {
     }
 }
 
-public struct ProfileRootScreen: View {
+public struct ProfileRootScreen: View, NavigationConfigurable {
     let navigator: AppNavigator
     @State private var showAlert: Bool = false
 
     public init(navigator: AppNavigator) {
         self.navigator = navigator
+    }
+    
+    public var navigationConfiguration: NavigationBarData {
+        var config = NavigationBarData()
+        config.title = "👤 My Profile"
+        config.titleDisplayMode = .always
+        config.prefersLargeTitles = true
+        config.applyPresetTheme(.purple)
+        
+        let settingsButton = UIBarButtonItem(
+            systemItem: .edit,
+            primaryAction: UIAction { _ in
+                print("Edit profile settings")
+            }
+        )
+        let notificationButton = UIBarButtonItem(
+            systemItem: .reply,
+            primaryAction: UIAction { _ in
+                print("Profile notifications")
+            }
+        )
+        config.leftBarButtonItems = [notificationButton]
+        config.rightBarButtonItems = [settingsButton]
+        
+        return config
     }
     
     public var body: some View {
@@ -59,12 +84,31 @@ public struct ProfileRootScreen: View {
     }
 }
 
-public struct ProfileDetail1Screen: View {
+public struct ProfileDetail1Screen: View, NavigationConfigurable {
     let navigator: AppNavigator
     @State private var showSheet: Bool = false
 
     public init(navigator: AppNavigator) {
         self.navigator = navigator
+    }
+    
+    public var navigationConfiguration: NavigationBarData {
+        var config = NavigationBarData()
+        config.title = "Account Info"
+        config.titleDisplayMode = .never
+        config.prefersLargeTitles = false
+        config.backgroundColor = .systemIndigo
+        config.foregroundColor = .white
+        
+        let securityButton = UIBarButtonItem(
+            systemItem: .search,
+            primaryAction: UIAction { _ in
+                print("Security settings")
+            }
+        )
+        config.rightBarButtonItems = [securityButton]
+        
+        return config
     }
     
     public var body: some View {
@@ -105,11 +149,37 @@ public struct ProfileDetail1Screen: View {
     }
 }
 
-public struct ProfileDetail2Screen: View {
+public struct ProfileDetail2Screen: View, NavigationConfigurable {
     let navigator: AppNavigator
 
     public init(navigator: AppNavigator) {
         self.navigator = navigator
+    }
+    
+    public var navigationConfiguration: NavigationBarData {
+        var config = NavigationBarData()
+        config.title = "Profile Detail 2"
+        config.titleDisplayMode = .always
+        config.prefersLargeTitles = true
+        config.backgroundColor = .systemGray
+        config.foregroundColor = .white
+        
+        let exportButton = UIBarButtonItem(
+            systemItem: .action,
+            primaryAction: UIAction { _ in
+                print("Export profile data")
+            }
+        )
+        let deleteButton = UIBarButtonItem(
+            systemItem: .trash,
+            primaryAction: UIAction { _ in
+                print("Delete account (careful!)")
+            }
+        )
+        
+        config.rightBarButtonItems = [exportButton, deleteButton]
+        
+        return config
     }
     
     public var body: some View {

@@ -29,13 +29,31 @@ public struct HomeEntryView: View {
     }
 }
 
-public struct HomeRootScreen: View {
+public struct HomeRootScreen: View, NavigationConfigurable {
     let navigator: AppNavigator
     @Environment(\.openURL) private var openURL
     @State private var showAlert: Bool = false
 
     public init(navigator: AppNavigator) {
         self.navigator = navigator
+    }
+    
+    public var navigationConfiguration: NavigationBarData {
+        var config = NavigationBarData()
+        config.title = "🏠 Home Hub"
+        config.titleDisplayMode = .always
+        config.prefersLargeTitles = true
+        config.applyPresetTheme(.blue)
+        
+        let settingsButton = UIBarButtonItem(
+            systemItem: .organize,
+            primaryAction: UIAction { _ in
+                print("Home settings tapped")
+            }
+        )
+        config.rightBarButtonItems = [settingsButton]
+        
+        return config
     }
     
     public var body: some View {
@@ -75,12 +93,36 @@ public struct HomeRootScreen: View {
     }
 }
 
-public struct HomeDetail1Screen: View {
+public struct HomeDetail1Screen: View, NavigationConfigurable {
     let navigator: AppNavigator
     @State private var showSheet: Bool = false
 
     public init(navigator: AppNavigator) {
         self.navigator = navigator
+    }
+    
+    public var navigationConfiguration: NavigationBarData {
+        var config = NavigationBarData()
+        config.title = "Home Level 1"
+        config.titleDisplayMode = .never
+        config.prefersLargeTitles = false
+        config.applyPresetTheme(.purple)
+        
+        let shareButton = UIBarButtonItem(
+            systemItem: .action,
+            primaryAction: UIAction { _ in
+                print("Share from Home Detail 1")
+            }
+        )
+        let favoriteButton = UIBarButtonItem(
+            systemItem: .bookmarks,
+            primaryAction: UIAction { _ in
+                print("Favorite Home Detail 1")
+            }
+        )
+        config.rightBarButtonItems = [shareButton, favoriteButton]
+        
+        return config
     }
     
     public var body: some View {
@@ -116,11 +158,30 @@ public struct HomeDetail1Screen: View {
     }
 }
 
-public struct HomeDetail2Screen: View {
+public struct HomeDetail2Screen: View, NavigationConfigurable {
     let navigator: AppNavigator
 
     public init(navigator: AppNavigator) {
         self.navigator = navigator
+    }
+    
+    public var navigationConfiguration: NavigationBarData {
+        var config = NavigationBarData()
+        config.title = "🚀 Deep Home"
+        config.titleDisplayMode = .always
+        config.prefersLargeTitles = true
+        config.backgroundColor = .systemOrange
+        config.foregroundColor = .white
+        
+        let infoButton = UIBarButtonItem(
+            systemItem: .action,
+            primaryAction: UIAction { _ in
+                print("Info for Home Detail 2")
+            }
+        )
+        config.leftBarButtonItems = [infoButton]
+        
+        return config
     }
     
     public var body: some View {

@@ -6,15 +6,16 @@
 //
 
 import SwiftUI
+import UIKit
 
 protocol ConfigurableHostingControllerProtocol: AnyObject {
-    var navConfig: NavigationBarData { get }
+    var navConfig: NavigationBarData? { get }
 }
 
 final class ConfigurableHostingController<Content: View>: UIHostingController<Content>, ConfigurableHostingControllerProtocol {
-    let navConfig: NavigationBarData
+    let navConfig: NavigationBarData?
     
-    init(rootView: Content, navConfig: NavigationBarData) {
+    init(rootView: Content, navConfig: NavigationBarData?) {
         self.navConfig = navConfig
         super.init(rootView: rootView)
     }

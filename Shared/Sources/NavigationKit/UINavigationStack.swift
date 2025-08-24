@@ -138,7 +138,8 @@ private struct UINavigationContainer<Content: View>: UIViewControllerRepresentab
         // UINavigationControllerDelegate method to update navigation bar when view appears
         func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
             if let vc = viewController as? ConfigurableHostingControllerProtocol {
-                self.proxy.applyNavigationConfiguration(vc.navConfig, to: viewController)
+                let navConfig = vc.navConfig
+                self.proxy.applyNavigationConfiguration(navConfig, to: viewController)
             }
         }
     }
@@ -161,7 +162,7 @@ private struct SwiftUINavigationView<Content: View>: View {
         NavigationStack(path: $navigator.path) {
             content
                 .navigationDestination(for: AppRoute.self) { route in
-                    destinationRouter.destination(for: route)
+                    AnyView(self.destinationRouter.destination(for: route))
                 }
         }
     }

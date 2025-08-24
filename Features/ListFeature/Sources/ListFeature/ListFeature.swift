@@ -27,12 +27,36 @@ public struct ListEntryView: View {
     }
 }
 
-public struct ListRootScreen: View {
+public struct ListRootScreen: View, NavigationConfigurable {
     let navigator: AppNavigator
     @State private var showAlert: Bool = false
 
     public init(navigator: AppNavigator) {
         self.navigator = navigator
+    }
+    
+    public var navigationConfiguration: NavigationBarData {
+        var config = NavigationBarData()
+        config.title = "📋 Lists Central"
+        config.titleDisplayMode = .always
+        config.prefersLargeTitles = true
+        config.applyPresetTheme(.green)
+        
+        let addButton = UIBarButtonItem(
+            systemItem: .add,
+            primaryAction: UIAction { _ in
+                print("Add new list item")
+            }
+        )
+        let searchButton = UIBarButtonItem(
+            systemItem: .search,
+            primaryAction: UIAction { _ in
+                print("Search lists")
+            }
+        )
+        config.rightBarButtonItems = [searchButton, addButton]
+        
+        return config
     }
     
     public var body: some View {
@@ -59,12 +83,31 @@ public struct ListRootScreen: View {
     }
 }
 
-public struct ListDetail1Screen: View {
+public struct ListDetail1Screen: View, NavigationConfigurable {
     let navigator: AppNavigator
     @State private var showSheet: Bool = false
 
     public init(navigator: AppNavigator) {
         self.navigator = navigator
+    }
+    
+    public var navigationConfiguration: NavigationBarData {
+        var config = NavigationBarData()
+        config.title = "List Items"
+        config.titleDisplayMode = .never
+        config.prefersLargeTitles = false
+        config.backgroundColor = .systemTeal
+        config.foregroundColor = .black
+        
+        let editButton = UIBarButtonItem(
+            systemItem: .edit,
+            primaryAction: UIAction { _ in
+                print("Edit list items")
+            }
+        )
+        config.rightBarButtonItems = [editButton]
+        
+        return config
     }
     
     public var body: some View {
@@ -100,11 +143,36 @@ public struct ListDetail1Screen: View {
     }
 }
 
-public struct ListDetail2Screen: View {
+public struct ListDetail2Screen: View, NavigationConfigurable {
     let navigator: AppNavigator
 
     public init(navigator: AppNavigator) {
         self.navigator = navigator
+    }
+    
+    public var navigationConfiguration: NavigationBarData {
+        var config = NavigationBarData()
+        config.title = "✨ List Details"
+        config.titleDisplayMode = .always
+        config.prefersLargeTitles = true
+        config.applyPresetTheme(.red)
+        
+        let refreshButton = UIBarButtonItem(
+            systemItem: .refresh,
+            primaryAction: UIAction { _ in
+                print("Refresh list details")
+            }
+        )
+        let moreButton = UIBarButtonItem(
+            systemItem: .reply,
+            primaryAction: UIAction { _ in
+                print("More options for list")
+            }
+        )
+        config.leftBarButtonItems = [moreButton]
+        config.rightBarButtonItems = [refreshButton]
+        
+        return config
     }
     
     public var body: some View {

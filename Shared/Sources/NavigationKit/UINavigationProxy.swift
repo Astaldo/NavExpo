@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - Navigation Bar Customization Data
 
@@ -40,22 +41,6 @@ public extension UINavigationProxy {
             return nil
         }
         return configurableView.navigationConfiguration
-    }
-    
-    /// Creates a NavigationBarData with just a title (convenience method)
-    static func navigationConfiguration(title: String) -> NavigationBarData {
-        var config = NavigationBarData()
-        config.title = title
-        return config
-    }
-    
-    /// Creates a NavigationBarData with title and colors (convenience method)
-    static func navigationConfiguration(title: String, backgroundColor: UIColor?, foregroundColor: UIColor?) -> NavigationBarData {
-        var config = NavigationBarData()
-        config.title = title
-        config.backgroundColor = backgroundColor
-        config.foregroundColor = foregroundColor
-        return config
     }
 }
 
@@ -116,13 +101,28 @@ public final class UINavigationProxy: ObservableObject {
     
     @MainActor
     public func push<V: View>(_ view: V, animated: Bool = true, transition: NavigationTransition = .slide) {
+        self.push(view, navConfig: view.navigationConfiguration, animated: animated, transition: transition)
+    }
+    
+    @MainActor
+    public func push(_ route: AppRoute, animated: Bool = true, transition: NavigationTransition = .slide) {
+        guard let destinationRouter = destinationRouter else {
+            print("No route definition set on UINavigationProxy")
+            self.push(Text("Route: \(route)"), animated: animated, transition: transition)
+            return
+        }
+        
+        let (view, navigationConfig) = destinationRouter.destinationWithConfig(for: route)
+        
+        self.push(view, navConfig: navigationConfig, animated: animated, transition: transition)
+    }
+    
+    @MainActor
+    public func push<V: View>(_ view: V, navConfig: NavigationBarData?, animated: Bool = true, transition: NavigationTransition = .slide) {
         guard let nav = navController else { return }
-        
-        // Extract navigation configuration from view before creating hosting controller
-        let navigationConfig = Self.extractNavigationConfiguration(from: view) ?? NavigationBarData()
-        
-        let hosting = ConfigurableHostingController(rootView: view.environment(\.uinc, self), navConfig: navigationConfig)
-        hosting.view.backgroundColor = .systemBackground
+
+        let hosting = ConfigurableHostingController(rootView: view.environment(\.uinc, self), navConfig: navConfig)
+        //hosting.view.backgroundColor = .systemBackground
         
         if case .fade = transition {
             let transition = CATransition()
@@ -136,18 +136,6 @@ public final class UINavigationProxy: ObservableObject {
         } else {
             nav.pushViewController(hosting, animated: animated)
         }
-    }
-    
-    @MainActor
-    public func push(_ route: AppRoute, animated: Bool = true, transition: NavigationTransition = .slide) {
-        guard let destinationRouter = destinationRouter else {
-            print("No route definition set on UINavigationProxy")
-            self.push(Text("Route: \(route)"), animated: animated, transition: transition)
-            return
-        }
-        
-        let view = destinationRouter.destination(for: route)
-        self.push(view, animated: animated, transition: transition)
     }
 
     @discardableResult
@@ -193,8 +181,8 @@ public final class UINavigationProxy: ObservableObject {
     
     /// Applies navigation configuration to a hosting controller before it's pushed
     @MainActor
-    func applyNavigationConfiguration(_ config: NavigationBarData, to viewController: UIViewController) {
-        guard let nav = navController else { return }
+    func applyNavigationConfiguration(_ config: NavigationBarData?, to viewController: UIViewController) {
+        guard let config, let nav = navController else { return }
         let navigationItem = viewController.navigationItem
         
         // Apply title
@@ -243,5 +231,14 @@ public final class UINavigationProxy: ObservableObject {
             return
         }
         self.applyNavigationConfiguration(configurable.navConfig, to: topViewController)
+    }
+}
+
+private extension View {
+    var navigationConfiguration: NavigationBarData? {
+        guard let configurableView = self as? NavigationConfigurable else {
+            return nil
+        }
+        return configurableView.navigationConfiguration
     }
 }

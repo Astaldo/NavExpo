@@ -15,32 +15,38 @@ import ProfileFeature
 
 public struct ScreenFactory: AppScreenFactoryProtocol {
     @MainActor
-    public func makeHomeDetail1(navigator: AppNavigator) -> AnyView {
-        AnyView(HomeDetail1Screen(navigator: navigator))
+    public func makeHomeDetail1(navigator: AppNavigator) -> (any View, NavigationBarData) {
+        let view = HomeDetail1Screen(navigator: navigator)
+        return (view, view.navigationConfiguration)
     }
     
     @MainActor
-    public func makeHomeDetail2(navigator: AppNavigator) -> AnyView {
-        AnyView(HomeDetail2Screen(navigator: navigator))
+    public func makeHomeDetail2(navigator: AppNavigator) -> (any View, NavigationBarData) {
+        let view = HomeDetail2Screen(navigator: navigator)
+        return (view, view.navigationConfiguration)
     }
     
     @MainActor
-    public func makeListDetail1(navigator: AppNavigator) -> AnyView {
-        AnyView(ListDetail1Screen(navigator: navigator))
+    public func makeListDetail1(navigator: AppNavigator) -> (any View, NavigationBarData) {
+        let view = ListDetail1Screen(navigator: navigator)
+        return (view, view.navigationConfiguration)
     }
     
     @MainActor
-    public func makeListDetail2(navigator: AppNavigator) -> AnyView {
-        AnyView(ListDetail2Screen(navigator: navigator))
+    public func makeListDetail2(navigator: AppNavigator) -> (any View, NavigationBarData) {
+        let view = ListDetail2Screen(navigator: navigator)
+        return (view, view.navigationConfiguration)
     }
     
     @MainActor
-    public func makeProfileDetail1(navigator: AppNavigator) -> AnyView {
-        AnyView(ProfileDetail1Screen(navigator: navigator))
+    public func makeProfileDetail1(navigator: AppNavigator) -> (any View, NavigationBarData) {
+        let view = ProfileDetail1Screen(navigator: navigator)
+        return (view, view.navigationConfiguration)
     }
     
     @MainActor
-    public func makeProfileDetail2(navigator: AppNavigator) -> AnyView {
-        AnyView(ProfileDetail2Screen(navigator: navigator))
+    public func makeProfileDetail2(navigator: AppNavigator) -> (any View, NavigationBarData) {
+        let view = ProfileDetail2Screen(navigator: navigator)
+        return (view, view.navigationConfiguration)
     }
 }

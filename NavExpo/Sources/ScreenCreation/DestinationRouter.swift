@@ -20,26 +20,31 @@ public struct DestinationRouter: DestinationRouterProtocol {
     }
     
     @MainActor
-    public func destination(for route: AppRoute) -> AnyView {
+    public func destination(for route: AppRoute) -> any View {
+        self.destinationWithConfig(for: route).0
+    }
+    
+    @MainActor
+    public func destinationWithConfig(for route: AppRoute) -> (any View, NavigationBarData) {
         switch route {
         case .home:
-            return AnyView(EmptyView()) // Root views are handled separately
+            return (EmptyView(), NavigationBarData()) // Root views are handled separately
         case .homeDetail1:
-            return screenFactory.makeHomeDetail1(navigator: navigator)
+            return self.screenFactory.makeHomeDetail1(navigator: navigator)
         case .homeDetail2:
-            return screenFactory.makeHomeDetail2(navigator: navigator)
+            return self.screenFactory.makeHomeDetail2(navigator: navigator)
         case .list:
-            return AnyView(EmptyView()) // Root views are handled separately
+            return (EmptyView(), NavigationBarData()) // Root views are handled separately
         case .listDetail1:
-            return screenFactory.makeListDetail1(navigator: navigator)
+            return self.screenFactory.makeListDetail1(navigator: navigator)
         case .listDetail2:
-            return screenFactory.makeListDetail2(navigator: navigator)
+            return self.screenFactory.makeListDetail2(navigator: navigator)
         case .profile:
-            return AnyView(EmptyView()) // Root views are handled separately
+            return (EmptyView(), NavigationBarData()) // Root views are handled separately
         case .profileDetail1:
-            return screenFactory.makeProfileDetail1(navigator: navigator)
+            return self.screenFactory.makeProfileDetail1(navigator: navigator)
         case .profileDetail2:
-            return screenFactory.makeProfileDetail2(navigator: navigator)
+            return self.screenFactory.makeProfileDetail2(navigator: navigator)
         }
     }
 }

@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-// MARK: - Route Definition Protocol for View Decoupling
-
+@MainActor
 public protocol DestinationRouterProtocol {
-    @MainActor func destination(for route: AppRoute) -> AnyView
+    func destination(for route: AppRoute) -> any View
+    func destinationWithConfig(for route: AppRoute) -> (any View, NavigationBarData)
 }
