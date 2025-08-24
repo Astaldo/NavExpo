@@ -119,15 +119,10 @@ public final class UINavigationProxy: ObservableObject {
         guard let nav = navController else { return }
         
         // Extract navigation configuration from view before creating hosting controller
-        let navigationConfig = Self.extractNavigationConfiguration(from: view)
+        let navigationConfig = Self.extractNavigationConfiguration(from: view) ?? NavigationBarData()
         
-        let hosting = UIHostingController(rootView: view.environment(\.uinc, self))
+        let hosting = ConfigurableHostingController(rootView: view.environment(\.uinc, self), navConfig: navigationConfig)
         hosting.view.backgroundColor = .systemBackground
-        
-        // Apply navigation configuration to hosting controller if available
-        if let config = navigationConfig {
-            self.applyNavigationConfiguration(config, to: hosting)
-        }
         
         if case .fade = transition {
             let transition = CATransition()
@@ -198,9 +193,9 @@ public final class UINavigationProxy: ObservableObject {
     
     /// Applies navigation configuration to a hosting controller before it's pushed
     @MainActor
-    private func applyNavigationConfiguration(_ config: NavigationBarData, to hostingController: UIHostingController<some View>) {
+    func applyNavigationConfiguration(_ config: NavigationBarData, to viewController: UIViewController) {
         guard let nav = navController else { return }
-        let navigationItem = hostingController.navigationItem
+        let navigationItem = viewController.navigationItem
         
         // Apply title
         navigationItem.title = config.title
@@ -242,40 +237,11 @@ public final class UINavigationProxy: ObservableObject {
         guard let nav = navController,
               let topViewController = nav.topViewController else { return }
         
-        let data = self.navigationBarData
-        
-        // Update title
-        //topViewController.navigationItem.title = data.title
-        topViewController.navigationItem.largeTitleDisplayMode = data.titleDisplayMode
-        
-        // Update navigation bar visibility
-        nav.setNavigationBarHidden(data.isHidden, animated: true)
-        nav.navigationBar.prefersLargeTitles = data.prefersLargeTitles
-        
-        // Update back button
-        topViewController.navigationItem.hidesBackButton = data.backButtonHidden
-        
-        // Update bar button items
-        topViewController.navigationItem.leftBarButtonItems = data.leftBarButtonItems
-        topViewController.navigationItem.rightBarButtonItems = data.rightBarButtonItems
-        
-        // Update appearance
-        if data.backgroundColor != nil || data.foregroundColor != nil {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithDefaultBackground()
-            
-            if let bgColor = data.backgroundColor {
-                appearance.backgroundColor = bgColor
-            }
-            
-            if let fgColor = data.foregroundColor {
-                appearance.titleTextAttributes[.foregroundColor] = fgColor
-                appearance.largeTitleTextAttributes[.foregroundColor] = fgColor
-            }
-            
-            nav.navigationBar.standardAppearance = appearance
-            nav.navigationBar.scrollEdgeAppearance = appearance
-            nav.navigationBar.compactAppearance = appearance
+        // Prefer stored config from our hosting controller if available
+        guard let configurable = topViewController as? ConfigurableHostingControllerProtocol else {
+            self.applyNavigationConfiguration(self.navigationBarData, to: topViewController)
+            return
         }
+        self.applyNavigationConfiguration(configurable.navConfig, to: topViewController)
     }
 }

@@ -137,7 +137,9 @@ private struct UINavigationContainer<Content: View>: UIViewControllerRepresentab
         
         // UINavigationControllerDelegate method to update navigation bar when view appears
         func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-            proxy.updateNavigationBar()
+            if let vc = viewController as? ConfigurableHostingControllerProtocol {
+                self.proxy.applyNavigationConfiguration(vc.navConfig, to: viewController)
+            }
         }
     }
 }
