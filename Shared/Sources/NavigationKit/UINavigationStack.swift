@@ -76,7 +76,7 @@ private struct UINavigationContainer<Content: View>: UIViewControllerRepresentab
 
     func makeUIViewController(context: Context) -> UINavigationController {
         let proxy = context.coordinator.proxy
-        let root = ConfigurableHostingController(rootView: content.environment(\.uinc, proxy), navConfig: nil)
+        let root = ConfigurableHostingController(rootView: content.environment(\.uinc, proxy), navConfigFactory: nil)
         root.view.backgroundColor = .systemBackground
 
         let nav = UINavigationController(rootViewController: root)
@@ -138,7 +138,7 @@ private struct UINavigationContainer<Content: View>: UIViewControllerRepresentab
         // UINavigationControllerDelegate method to update navigation bar when view appears
         func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
             if let vc = viewController as? ConfigurableHostingControllerProtocol {
-                let navConfig = vc.navConfig
+                let navConfig = vc.navConfigFactory?()
                 self.proxy.applyNavigationConfiguration(navConfig, to: viewController)
             }
         }

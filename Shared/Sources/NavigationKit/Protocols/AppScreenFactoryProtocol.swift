@@ -11,10 +11,13 @@ import SwiftUI
 
 @MainActor
 public protocol AppScreenFactoryProtocol {
-    func makeHomeDetail1(navigator: AppNavigator) -> (any View, NavigationBarData)
-    func makeHomeDetail2(navigator: AppNavigator) -> (any View, NavigationBarData)
-    func makeListDetail1(navigator: AppNavigator) -> (any View, NavigationBarData)
-    func makeListDetail2(navigator: AppNavigator) -> (any View, NavigationBarData)
-    func makeProfileDetail1(navigator: AppNavigator) -> (any View, NavigationBarData)
-    func makeProfileDetail2(navigator: AppNavigator) -> (any View, NavigationBarData)
+    func makeHomeRoot(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory)
+    func makeHomeDetail1(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory)
+    func makeHomeDetail2(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory)
+    func makeListRoot(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory)
+    func makeListDetail1(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory)
+    func makeListDetail2(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory)
+    func makeProfileRoot(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory)
+    func makeProfileDetail1(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory)
+    func makeProfileDetail2(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory)
 }

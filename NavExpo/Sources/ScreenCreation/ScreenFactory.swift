@@ -13,40 +13,52 @@ import ProfileFeature
 
 // MARK: - App Screen Factory Implementation
 
+@MainActor
 public struct ScreenFactory: AppScreenFactoryProtocol {
-    @MainActor
-    public func makeHomeDetail1(navigator: AppNavigator) -> (any View, NavigationBarData) {
+ 
+    public func makeHomeRoot(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory) {
+        let viewModel = HomeViewModel()
+        let view = HomeRootScreen(navigator: navigator, viewModel: viewModel)
+        return (AnyView(view), view.navigationConfiguration)
+    }
+    
+    public func makeHomeDetail1(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory) {
         let view = HomeDetail1Screen(navigator: navigator)
-        return (view, view.navigationConfiguration)
+        return (AnyView(view), view.navigationConfiguration)
     }
     
-    @MainActor
-    public func makeHomeDetail2(navigator: AppNavigator) -> (any View, NavigationBarData) {
+    public func makeHomeDetail2(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory) {
         let view = HomeDetail2Screen(navigator: navigator)
-        return (view, view.navigationConfiguration)
+        return (AnyView(view), view.navigationConfiguration)
     }
     
-    @MainActor
-    public func makeListDetail1(navigator: AppNavigator) -> (any View, NavigationBarData) {
+    public func makeListRoot(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory) {
+        let view = ListRootScreen(navigator: navigator)
+        return (AnyView(view), view.navigationConfiguration)
+    }
+    
+    public func makeListDetail1(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory) {
         let view = ListDetail1Screen(navigator: navigator)
-        return (view, view.navigationConfiguration)
+        return (AnyView(view), view.navigationConfiguration)
     }
     
-    @MainActor
-    public func makeListDetail2(navigator: AppNavigator) -> (any View, NavigationBarData) {
+    public func makeListDetail2(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory) {
         let view = ListDetail2Screen(navigator: navigator)
-        return (view, view.navigationConfiguration)
+        return (AnyView(view), view.navigationConfiguration)
     }
     
-    @MainActor
-    public func makeProfileDetail1(navigator: AppNavigator) -> (any View, NavigationBarData) {
+    public func makeProfileRoot(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory) {
+        let view = ProfileRootScreen(navigator: navigator)
+        return (AnyView(view), view.navigationConfiguration)
+    }
+    
+    public func makeProfileDetail1(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory) {
         let view = ProfileDetail1Screen(navigator: navigator)
-        return (view, view.navigationConfiguration)
+        return (AnyView(view), view.navigationConfiguration)
     }
     
-    @MainActor
-    public func makeProfileDetail2(navigator: AppNavigator) -> (any View, NavigationBarData) {
+    public func makeProfileDetail2(navigator: AppNavigator) -> (AnyView, NavigationBarDataFactory) {
         let view = ProfileDetail2Screen(navigator: navigator)
-        return (view, view.navigationConfiguration)
+        return (AnyView(view), view.navigationConfiguration)
     }
 }

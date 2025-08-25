@@ -9,14 +9,14 @@ import SwiftUI
 import UIKit
 
 protocol ConfigurableHostingControllerProtocol: AnyObject {
-    var navConfig: NavigationBarData? { get }
+    var navConfigFactory: NavigationBarDataFactory? { get }
 }
 
 final class ConfigurableHostingController<Content: View>: UIHostingController<Content>, ConfigurableHostingControllerProtocol {
-    let navConfig: NavigationBarData?
+    let navConfigFactory: NavigationBarDataFactory?
     
-    init(rootView: Content, navConfig: NavigationBarData?) {
-        self.navConfig = navConfig
+    init(rootView: Content, navConfigFactory: NavigationBarDataFactory?) {
+        self.navConfigFactory = navConfigFactory
         super.init(rootView: rootView)
     }
     

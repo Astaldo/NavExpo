@@ -1,6 +1,18 @@
 import SwiftUI
 import NavigationKit
 
+public protocol HomeViewModelProtocol: ObservableObject {
+    var editMode: Bool { get set }
+}
+
+public class HomeViewModel: HomeViewModelProtocol {
+    @Published public var editMode: Bool
+    
+    public init() {
+        self.editMode = false
+    }
+}
+
 public struct HomeEntryView: View {
     @ObservedObject private var navigator: AppNavigator
     private let desinationRouter: any DestinationRouterProtocol
@@ -21,39 +33,57 @@ public struct HomeEntryView: View {
             navigator: self.navigator,
             desinationRouter: self.desinationRouter,
             configuration: .init(mode: self.navigationMode)) {
-                HomeRootScreen(
-                    navigator: navigator
-                )
-                .uiNavigationTitle("Home")
+                desinationRouter.destination(for: .home)
+                    .uiNavigationTitle("Home")
         }
     }
 }
 
-public struct HomeRootScreen: View, NavigationConfigurable {
+
+public struct HomeRootScreen<ViewModel: HomeViewModelProtocol>: View, NavigationConfigurable {
     let navigator: AppNavigator
     @Environment(\.openURL) private var openURL
     @State private var showAlert: Bool = false
+    @ObservedObject var viewModel: ViewModel
 
-    public init(navigator: AppNavigator) {
+    public init(navigator: AppNavigator, viewModel: ViewModel) {
         self.navigator = navigator
+        self.viewModel = viewModel
     }
     
-    public var navigationConfiguration: NavigationBarData {
-        var config = NavigationBarData()
-        config.title = "🏠 Home Hub"
-        config.titleDisplayMode = .always
-        config.prefersLargeTitles = true
-        config.applyPresetTheme(.blue)
-        
-        let settingsButton = UIBarButtonItem(
-            systemItem: .organize,
-            primaryAction: UIAction { _ in
-                print("Home settings tapped")
+    public var navigationConfiguration: NavigationBarDataFactory {
+        return { [weak viewModel] in
+            var config = NavigationBarData()
+            config.title = "🏠 Home Hub"
+            config.titleDisplayMode = .always
+            config.prefersLargeTitles = true
+            config.applyPresetTheme(.blue)
+            
+            var rightBarButtonItems: [UIBarButtonItem] = []
+            if viewModel?.editMode ?? false {
+                let editButton = UIBarButtonItem(
+                    systemItem: .edit,
+                    primaryAction: UIAction { _ in
+                        print("Edit tapped")
+                        viewModel?.editMode = true
+                    }
+                )
+                rightBarButtonItems += [editButton]
+            } else {
+                let doneButton = UIBarButtonItem(
+                    systemItem: .done,
+                    primaryAction: UIAction { _ in
+                        print("Stop editing tapped")
+                        viewModel?.editMode = false
+                    }
+                )
+                rightBarButtonItems += [doneButton]
             }
-        )
-        config.rightBarButtonItems = [settingsButton]
-        
-        return config
+            
+            config.rightBarButtonItems = rightBarButtonItems
+            
+            return config
+        }
     }
     
     public var body: some View {
@@ -101,28 +131,30 @@ public struct HomeDetail1Screen: View, NavigationConfigurable {
         self.navigator = navigator
     }
     
-    public var navigationConfiguration: NavigationBarData {
-        var config = NavigationBarData()
-        config.title = "Home Level 1"
-        config.titleDisplayMode = .never
-        config.prefersLargeTitles = false
-        config.applyPresetTheme(.purple)
-        
-        let shareButton = UIBarButtonItem(
-            systemItem: .action,
-            primaryAction: UIAction { _ in
-                print("Share from Home Detail 1")
-            }
-        )
-        let favoriteButton = UIBarButtonItem(
-            systemItem: .bookmarks,
-            primaryAction: UIAction { _ in
-                print("Favorite Home Detail 1")
-            }
-        )
-        config.rightBarButtonItems = [shareButton, favoriteButton]
-        
-        return config
+    public var navigationConfiguration: NavigationBarDataFactory {
+        return {
+            var config = NavigationBarData()
+            config.title = "Home Level 1"
+            config.titleDisplayMode = .never
+            config.prefersLargeTitles = false
+            config.applyPresetTheme(.purple)
+            
+            let shareButton = UIBarButtonItem(
+                systemItem: .action,
+                primaryAction: UIAction { _ in
+                    print("Share from Home Detail 1")
+                }
+            )
+            let favoriteButton = UIBarButtonItem(
+                systemItem: .bookmarks,
+                primaryAction: UIAction { _ in
+                    print("Favorite Home Detail 1")
+                }
+            )
+            config.rightBarButtonItems = [shareButton, favoriteButton]
+            
+            return config
+        }
     }
     
     public var body: some View {
@@ -165,23 +197,25 @@ public struct HomeDetail2Screen: View, NavigationConfigurable {
         self.navigator = navigator
     }
     
-    public var navigationConfiguration: NavigationBarData {
-        var config = NavigationBarData()
-        config.title = "🚀 Deep Home"
-        config.titleDisplayMode = .always
-        config.prefersLargeTitles = true
-        config.backgroundColor = .systemOrange
-        config.foregroundColor = .white
-        
-        let infoButton = UIBarButtonItem(
-            systemItem: .action,
-            primaryAction: UIAction { _ in
-                print("Info for Home Detail 2")
-            }
-        )
-        config.leftBarButtonItems = [infoButton]
-        
-        return config
+    public var navigationConfiguration: NavigationBarDataFactory {
+        return {
+            var config = NavigationBarData()
+            config.title = "🚀 Deep Home"
+            config.titleDisplayMode = .always
+            config.prefersLargeTitles = true
+            config.backgroundColor = .systemOrange
+            config.foregroundColor = .white
+            
+            let infoButton = UIBarButtonItem(
+                systemItem: .action,
+                primaryAction: UIAction { _ in
+                    print("Info for Home Detail 2")
+                }
+            )
+            config.leftBarButtonItems = [infoButton]
+            
+            return config
+        }
     }
     
     public var body: some View {
@@ -204,25 +238,27 @@ public struct HomeConfigurableDetailScreen: View, NavigationConfigurable {
         self.navigator = navigator
     }
     
-    public var navigationConfiguration: NavigationBarData {
-        var config = NavigationBarData()
-        config.title = "Configured Screen"
-        config.titleDisplayMode = .never
-        config.prefersLargeTitles = false
-        
-        // Add custom colors for Level 1 using preset theme
-        config.applyPresetTheme(.red)
-        
-        // Right bar button item for Level 1
-        let infoButton = UIBarButtonItem(
-            systemItem: .bookmarks,
-            primaryAction: UIAction { _ in
-                print("Info button tapped on Level 1")
-            }
-        )
-        config.rightBarButtonItems = [infoButton]
-        
-        return config
+    public var navigationConfiguration: NavigationBarDataFactory {
+        return {
+            var config = NavigationBarData()
+            config.title = "Configured Screen"
+            config.titleDisplayMode = .never
+            config.prefersLargeTitles = false
+            
+            // Add custom colors for Level 1 using preset theme
+            config.applyPresetTheme(.red)
+            
+            // Right bar button item for Level 1
+            let infoButton = UIBarButtonItem(
+                systemItem: .bookmarks,
+                primaryAction: UIAction { _ in
+                    print("Info button tapped on Level 1")
+                }
+            )
+            config.rightBarButtonItems = [infoButton]
+            
+            return config
+        }
     }
     
     public var body: some View {
@@ -276,42 +312,44 @@ public struct HomeConfigurableDetailScreen2: View, NavigationConfigurable {
         self.navigator = navigator
     }
     
-    public var navigationConfiguration: NavigationBarData {
-        var config = NavigationBarData()
-        config.title = "Level 2 Screen"
-        config.titleDisplayMode = .always
-        config.prefersLargeTitles = true
-        
-        // Add custom colors for Level 2 - different from Level 1 using preset theme
-        config.applyPresetTheme(.green)
-        
-        // Left bar button item
-        let leftButton = UIBarButtonItem(
-            systemItem: .add,
-            primaryAction: UIAction { _ in
-                // This would need to be handled differently in a real app
-                // For demo purposes, we'll just print
-                print("Add button tapped")
-            }
-        )
-        config.leftBarButtonItems = [leftButton]
-        
-        // Right bar button items
-        let editButton = UIBarButtonItem(
-            systemItem: .edit,
-            primaryAction: UIAction { _ in
-                print("Edit button tapped")
-            }
-        )
-        let shareButton = UIBarButtonItem(
-            systemItem: .action,
-            primaryAction: UIAction { _ in
-                print("Share button tapped")
-            }
-        )
-        config.rightBarButtonItems = [editButton, shareButton]
-        
-        return config
+    public var navigationConfiguration: NavigationBarDataFactory {
+        return {
+            var config = NavigationBarData()
+            config.title = "Level 2 Screen"
+            config.titleDisplayMode = .always
+            config.prefersLargeTitles = true
+            
+            // Add custom colors for Level 2 - different from Level 1 using preset theme
+            config.applyPresetTheme(.green)
+            
+            // Left bar button item
+            let leftButton = UIBarButtonItem(
+                systemItem: .add,
+                primaryAction: UIAction { _ in
+                    // This would need to be handled differently in a real app
+                    // For demo purposes, we'll just print
+                    print("Add button tapped")
+                }
+            )
+            config.leftBarButtonItems = [leftButton]
+            
+            // Right bar button items
+            let editButton = UIBarButtonItem(
+                systemItem: .edit,
+                primaryAction: UIAction { _ in
+                    print("Edit button tapped")
+                }
+            )
+            let shareButton = UIBarButtonItem(
+                systemItem: .action,
+                primaryAction: UIAction { _ in
+                    print("Share button tapped")
+                }
+            )
+            config.rightBarButtonItems = [editButton, shareButton]
+            
+            return config
+        }
     }
     
     public var body: some View {

@@ -29,7 +29,7 @@ public struct NavigationBarData {
 /// Protocol that SwiftUI views can conform to for declaring their navigation bar configuration upfront
 public protocol NavigationConfigurable {
     /// The navigation bar configuration for this view
-    var navigationConfiguration: NavigationBarData { get }
+    var navigationConfiguration: NavigationBarDataFactory { get }
 }
 
 // MARK: - Configuration Extraction Utilities
@@ -40,7 +40,7 @@ public extension UINavigationProxy {
         guard let configurableView = view as? NavigationConfigurable else {
             return nil
         }
-        return configurableView.navigationConfiguration
+        return configurableView.navigationConfiguration()
     }
 }
 
@@ -101,7 +101,7 @@ public final class UINavigationProxy: ObservableObject {
     
     @MainActor
     public func push<V: View>(_ view: V, animated: Bool = true, transition: NavigationTransition = .slide) {
-        self.push(view, navConfig: view.navigationConfiguration, animated: animated, transition: transition)
+        self.push(view, navConfigFactory: view.navigationConfigurationFactory, animated: animated, transition: transition)
     }
     
     @MainActor
@@ -112,16 +112,16 @@ public final class UINavigationProxy: ObservableObject {
             return
         }
         
-        let (view, navigationConfig) = destinationRouter.destinationWithConfig(for: route)
+        let (view, navigationConfigFactory) = destinationRouter.destinationWithConfig(for: route)
         
-        self.push(view, navConfig: navigationConfig, animated: animated, transition: transition)
+        self.push(view, navConfigFactory: navigationConfigFactory, animated: animated, transition: transition)
     }
     
     @MainActor
-    public func push<V: View>(_ view: V, navConfig: NavigationBarData?, animated: Bool = true, transition: NavigationTransition = .slide) {
+    public func push<V: View>(_ view: V, navConfigFactory: NavigationBarDataFactory?, animated: Bool = true, transition: NavigationTransition = .slide) {
         guard let nav = navController else { return }
 
-        let hosting = ConfigurableHostingController(rootView: view.environment(\.uinc, self), navConfig: navConfig)
+        let hosting = ConfigurableHostingController(rootView: view.environment(\.uinc, self), navConfigFactory: navConfigFactory)
         //hosting.view.backgroundColor = .systemBackground
         
         if case .fade = transition {
@@ -230,12 +230,12 @@ public final class UINavigationProxy: ObservableObject {
             self.applyNavigationConfiguration(self.navigationBarData, to: topViewController)
             return
         }
-        self.applyNavigationConfiguration(configurable.navConfig, to: topViewController)
+        self.applyNavigationConfiguration(configurable.navConfigFactory?(), to: topViewController)
     }
 }
 
 private extension View {
-    var navigationConfiguration: NavigationBarData? {
+    var navigationConfigurationFactory: NavigationBarDataFactory? {
         guard let configurableView = self as? NavigationConfigurable else {
             return nil
         }

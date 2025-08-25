@@ -9,6 +9,6 @@ import SwiftUI
 
 @MainActor
 public protocol DestinationRouterProtocol {
-    func destination(for route: AppRoute) -> any View
-    func destinationWithConfig(for route: AppRoute) -> (any View, NavigationBarData)
+    func destination(for route: AppRoute) -> AnyView
+    func destinationWithConfig(for route: AppRoute) -> (AnyView, NavigationBarDataFactory)
 }
