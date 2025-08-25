@@ -52,33 +52,38 @@ public struct HomeRootScreen<ViewModel: HomeViewModelProtocol>: View, Navigation
     }
     
     public var navigationConfiguration: NavigationBarDataFactory {
-        return { [weak viewModel] in
+        return { [weak viewModel, weak navigator] in
             var config = NavigationBarData()
             config.title = "🏠 Home Hub"
             config.titleDisplayMode = .always
             config.prefersLargeTitles = true
-            config.applyPresetTheme(.blue)
+            config.applyPresetTheme(.yellow)
             
             var rightBarButtonItems: [UIBarButtonItem] = []
-            if viewModel?.editMode ?? false {
-                let editButton = UIBarButtonItem(
-                    systemItem: .edit,
-                    primaryAction: UIAction { _ in
-                        print("Edit tapped")
-                        viewModel?.editMode = true
-                    }
-                )
-                rightBarButtonItems += [editButton]
-            } else {
-                let doneButton = UIBarButtonItem(
-                    systemItem: .done,
-                    primaryAction: UIAction { _ in
-                        print("Stop editing tapped")
-                        viewModel?.editMode = false
-                    }
-                )
-                rightBarButtonItems += [doneButton]
+            if let viewModel {
+                if !viewModel.editMode {
+                    let editButton = UIBarButtonItem(
+                        systemItem: .edit,
+                        primaryAction: UIAction { [weak viewModel, weak navigator] _ in
+                            print("Edit tapped")
+                            viewModel?.editMode = true
+                            navigator?.uiNavigationProxy?.updateNavigationBar()
+                        }
+                    )
+                    rightBarButtonItems += [editButton]
+                } else {
+                    let doneButton = UIBarButtonItem(
+                        systemItem: .done,
+                        primaryAction: UIAction { [weak viewModel, weak navigator] _ in
+                            print("Stop editing tapped")
+                            viewModel?.editMode = false
+                            navigator?.uiNavigationProxy?.updateNavigationBar()
+                        }
+                    )
+                    rightBarButtonItems += [doneButton]
+                }
             }
+            
             
             config.rightBarButtonItems = rightBarButtonItems
             

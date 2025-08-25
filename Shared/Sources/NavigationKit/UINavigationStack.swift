@@ -8,6 +8,59 @@
 import SwiftUI
 import UIKit
 
+// MARK: - Navigation Configuration Extraction
+
+/// Utility for extracting NavigationBarDataFactory from SwiftUI views,
+/// even when wrapped in modifier chains that obscure the original type
+private struct NavigationConfigExtractor {
+    
+    /// Maximum depth to search to prevent infinite recursion
+    private static let maxRecursionDepth = 10
+    
+    /// Extracts NavigationBarDataFactory from a view, searching through modifier chains if needed
+    /// - Parameter view: The SwiftUI view to extract configuration from
+    /// - Returns: NavigationBarDataFactory if found, nil otherwise
+    static func extract<V: View>(from view: V) -> NavigationBarDataFactory? {
+        return extractWithDepth(from: view, currentDepth: 0)
+    }
+    
+    /// Internal extraction method with depth tracking
+    private static func extractWithDepth<V>(from view: V, currentDepth: Int) -> NavigationBarDataFactory? {
+        // Safety check: prevent excessive recursion
+        guard currentDepth < maxRecursionDepth else {
+            return nil
+        }
+        
+        // Fast path: direct NavigationConfigurable conformance
+        if let configurable = view as? NavigationConfigurable {
+            return configurable.navigationConfiguration
+        }
+        
+        // Mirror-based recursive search
+        return searchRecursively(in: view, currentDepth: currentDepth)
+    }
+    
+    /// Recursively search through view properties using Mirror reflection
+    private static func searchRecursively<V>(in view: V, currentDepth: Int) -> NavigationBarDataFactory? {
+        let mirror = Mirror(reflecting: view)
+        
+        // Search through all properties of the view
+        for child in mirror.children {
+            // Check if this property is NavigationConfigurable
+            if let configurable = child.value as? NavigationConfigurable {
+                return configurable.navigationConfiguration
+            }
+            
+            // Recursively search in this property
+            if let found = extractWithDepth(from: child.value, currentDepth: currentDepth + 1) {
+                return found
+            }
+        }
+        
+        return nil
+    }
+}
+
 // MARK: - The SwiftUI View
 
 /// A SwiftUI container that can use either UIKit UINavigationController or SwiftUI NavigationStack under the hood.
@@ -76,8 +129,12 @@ private struct UINavigationContainer<Content: View>: UIViewControllerRepresentab
 
     func makeUIViewController(context: Context) -> UINavigationController {
         let proxy = context.coordinator.proxy
-        let root = ConfigurableHostingController(rootView: content.environment(\.uinc, proxy), navConfigFactory: nil)
-        root.view.backgroundColor = .systemBackground
+        
+        // Extract navigation configuration factory from content (handles modifiers)
+        let navConfigFactory = NavigationConfigExtractor.extract(from: content)
+        
+        let root = ConfigurableHostingController(rootView: content.environment(\.uinc, proxy), navConfigFactory: navConfigFactory)
+        root.view.backgroundColor = UIColor.systemBackground
 
         let nav = UINavigationController(rootViewController: root)
 

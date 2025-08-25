@@ -56,8 +56,8 @@ public extension NavigationBarData {
     /// Applies a predefined color theme
     mutating func applyPresetTheme(_ theme: NavigationColorTheme) {
         switch theme {
-        case .blue:
-            applyColorTheme(background: .systemBlue, foreground: .white)
+        case .yellow:
+            applyColorTheme(background: .systemYellow, foreground: .white)
         case .green:
             applyColorTheme(background: .systemGreen, foreground: .black)
         case .red:
@@ -73,7 +73,7 @@ public extension NavigationBarData {
 // MARK: - Navigation Color Themes
 
 public enum NavigationColorTheme {
-    case blue
+    case yellow
     case green
     case red
     case purple
@@ -234,11 +234,61 @@ public final class UINavigationProxy: ObservableObject {
     }
 }
 
-private extension View {
-    var navigationConfigurationFactory: NavigationBarDataFactory? {
-        guard let configurableView = self as? NavigationConfigurable else {
+// MARK: - Navigation Configuration Extraction
+
+/// Utility for extracting NavigationBarDataFactory from SwiftUI views,
+/// even when wrapped in modifier chains that obscure the original type
+private struct NavigationConfigExtractor {
+    
+    /// Maximum depth to search to prevent infinite recursion
+    private static let maxRecursionDepth = 10
+    
+    /// Extracts NavigationBarDataFactory from a view, searching through modifier chains if needed
+    /// - Parameter view: The SwiftUI view to extract configuration from
+    /// - Returns: NavigationBarDataFactory if found, nil otherwise
+    static func extract<V: View>(from view: V) -> NavigationBarDataFactory? {
+        return extractWithDepth(from: view, currentDepth: 0)
+    }
+    
+    /// Internal extraction method with depth tracking
+    private static func extractWithDepth<V>(from view: V, currentDepth: Int) -> NavigationBarDataFactory? {
+        // Safety check: prevent excessive recursion
+        guard currentDepth < maxRecursionDepth else {
             return nil
         }
-        return configurableView.navigationConfiguration
+        
+        // Fast path: direct NavigationConfigurable conformance
+        if let configurable = view as? NavigationConfigurable {
+            return configurable.navigationConfiguration
+        }
+        
+        // Mirror-based recursive search
+        return searchRecursively(in: view, currentDepth: currentDepth)
+    }
+    
+    /// Recursively search through view properties using Mirror reflection
+    private static func searchRecursively<V>(in view: V, currentDepth: Int) -> NavigationBarDataFactory? {
+        let mirror = Mirror(reflecting: view)
+        
+        // Search through all properties of the view
+        for child in mirror.children {
+            // Check if this property is NavigationConfigurable
+            if let configurable = child.value as? NavigationConfigurable {
+                return configurable.navigationConfiguration
+            }
+            
+            // Recursively search in this property
+            if let found = extractWithDepth(from: child.value, currentDepth: currentDepth + 1) {
+                return found
+            }
+        }
+        
+        return nil
+    }
+}
+
+private extension View {
+    var navigationConfigurationFactory: NavigationBarDataFactory? {
+        return NavigationConfigExtractor.extract(from: self)
     }
 }
