@@ -71,12 +71,12 @@ private struct UINavigationContainer<Content: View>: UIViewControllerRepresentab
     let destinationRouter: (any DestinationRouterProtocol)?
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(navigator: navigator, destinationRouter: destinationRouter)
+        Coordinator(navigator: self.navigator, destinationRouter: self.destinationRouter)
     }
 
     func makeUIViewController(context: Context) -> UINavigationController {
         let proxy = context.coordinator.proxy
-        let root = UIHostingController(rootView: content.environment(\.uinc, proxy))
+        let root = ConfigurableHostingController(rootView: content.environment(\.uinc, proxy), navConfig: nil)
         root.view.backgroundColor = .systemBackground
 
         let nav = UINavigationController(rootViewController: root)
@@ -87,8 +87,8 @@ private struct UINavigationContainer<Content: View>: UIViewControllerRepresentab
         nav.delegate = context.coordinator
 
         // Apply configuration
-        nav.setNavigationBarHidden(configuration.isNavigationBarHidden, animated: false)
-        nav.navigationBar.prefersLargeTitles = configuration.prefersLargeTitles
+        nav.setNavigationBarHidden(self.configuration.isNavigationBarHidden, animated: false)
+        nav.navigationBar.prefersLargeTitles = self.configuration.prefersLargeTitles
 
         // Default appearance that plays nicely with SwiftUI
         let appearance = UINavigationBarAppearance()
@@ -131,7 +131,7 @@ private struct UINavigationContainer<Content: View>: UIViewControllerRepresentab
 
         // Keep the pop gesture working while allowing it on non-root controllers
         func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-            guard let nav = proxy.navController else { return true }
+            guard let nav = self.proxy.navController else { return true }
             return nav.viewControllers.count > 1
         }
         
